@@ -199,7 +199,7 @@ import {
   addMenu,
   updateMenu
 } from "@/api/system/menu";
-import { crud } from "@/utils/crud.js";
+import { api } from "@/utils/api.js";
 import Treeselect from "@riophae/vue-treeselect";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 import IconSelect from "@/components/IconSelect";
@@ -259,7 +259,7 @@ export default {
     /** 查询菜单列表 */
     getList() {
       this.loading = true;
-      crud("system", "menu", "list", this.queryParams).then(response => {
+      api("system", "menu", "list", this.queryParams).then(response => {
         this.menuList = this.handleTree(response.data, "menuId");
         this.loading = false;
       });
