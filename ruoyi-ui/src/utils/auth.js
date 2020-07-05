@@ -1,9 +1,10 @@
 import Cookies from 'js-cookie'
-
+import { setting_get, setting_del } from '@/utils/setting'
 const TokenKey = 'Admin-Token'
 
 export function getToken() {
-  return Cookies.get(TokenKey)
+  return setting_get('common_token')
+  // return Cookies.get(TokenKey)
 }
 
 export function setToken(token) {
@@ -11,5 +12,6 @@ export function setToken(token) {
 }
 
 export function removeToken() {
-  return Cookies.remove(TokenKey)
+  setting_del('common_token')
+  // return Cookies.remove(TokenKey)
 }

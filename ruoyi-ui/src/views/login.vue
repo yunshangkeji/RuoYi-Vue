@@ -18,7 +18,7 @@
           <svg-icon slot="prefix" icon-class="password" class="el-input__icon input-icon" />
         </el-input>
       </el-form-item>
-      <el-form-item prop="code">
+      <el-form-item prop="code" v-if="0">
         <el-input
           v-model="loginForm.code"
           auto-complete="off"
@@ -66,7 +66,7 @@ export default {
       cookiePassword: "",
       loginForm: {
         username: "admin",
-        password: "admin123",
+        password: "123",
         rememberMe: false,
         code: "",
         uuid: ""
@@ -98,6 +98,7 @@ export default {
   },
   methods: {
     getCode() {
+      return
       getCodeImg().then(res => {
         this.codeUrl = "data:image/gif;base64," + res.img;
         this.loginForm.uuid = res.uuid;
@@ -130,6 +131,7 @@ export default {
             .dispatch("Login", this.loginForm)
             .then(() => {
               this.$router.push({ path: this.redirect || "/" });
+              this.loading = false;
             })
             .catch(() => {
               this.loading = false;
