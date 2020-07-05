@@ -22,7 +22,13 @@
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-        <el-button type="primary" icon="el-icon-plus" size="mini" @click="handleAdd" v-hasPermi="['system:menu:add']">新增</el-button>
+        <el-button
+          v-hasPermi="['system:menu:add']"
+          type="primary"
+          icon="el-icon-plus"
+          size="mini"
+          @click="handleAdd"
+        >新增</el-button>
       </el-form-item>
     </el-form>
 
@@ -44,30 +50,31 @@
       <el-table-column prop="status" label="状态" :formatter="statusFormat" width="80"></el-table-column>
       <el-table-column label="创建时间" align="center" prop="createTime">
         <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.createTime) }}</span>
+          <span>{{parseTime(scope.row.createTime)}}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
-          <el-button size="mini" 
-            type="text" 
-            icon="el-icon-edit" 
-            @click="handleUpdate(scope.row)"
+          <el-button
             v-hasPermi="['system:menu:edit']"
+            size="mini"
+            type="text"
+            icon="el-icon-edit"
+            @click="handleUpdate(scope.row)"
           >修改</el-button>
-          <el-button 
-            size="mini" 
-            type="text" 
-            icon="el-icon-plus" 
-            @click="handleAdd(scope.row)"
+          <el-button
             v-hasPermi="['system:menu:add']"
+            size="mini"
+            type="text"
+            icon="el-icon-plus"
+            @click="handleAdd(scope.row)"
           >新增</el-button>
           <el-button
+            v-hasPermi="['system:menu:remove']"
             size="mini"
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
-            v-hasPermi="['system:menu:remove']"
           >删除</el-button>
         </template>
       </el-table-column>
@@ -142,7 +149,7 @@
               <el-input v-model="form.path" placeholder="请输入路由地址" />
             </el-form-item>
           </el-col>
-          <el-col :span="12" v-if="form.menuType == 'C'">
+          <el-col v-if="form.menuType == 'C'" :span="12">
             <el-form-item label="组件路径" prop="component">
               <el-input v-model="form.component" placeholder="请输入组件路径" />
             </el-form-item>
@@ -185,7 +192,14 @@
 </template>
 
 <script>
-import { listMenu, getMenu, delMenu, addMenu, updateMenu } from "@/api/system/menu";
+import {
+  listMenu,
+  getMenu,
+  delMenu,
+  addMenu,
+  updateMenu
+} from "@/api/system/menu";
+import { crud } from "@/utils/crud.js";
 import Treeselect from "@riophae/vue-treeselect";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 import IconSelect from "@/components/IconSelect";
@@ -224,9 +238,7 @@ export default {
         orderNum: [
           { required: true, message: "菜单顺序不能为空", trigger: "blur" }
         ],
-        path: [
-          { required: true, message: "路由地址不能为空", trigger: "blur" }
-        ]
+        path: [{ required: true, message: "路由地址不能为空", trigger: "blur" }]
       }
     };
   },
@@ -247,7 +259,7 @@ export default {
     /** 查询菜单列表 */
     getList() {
       this.loading = true;
-      listMenu(this.queryParams).then(response => {
+      crud("system", "menu", "list", this.queryParams).then(response => {
         this.menuList = this.handleTree(response.data, "menuId");
         this.loading = false;
       });
@@ -267,21 +279,21 @@ export default {
     getTreeselect() {
       listMenu().then(response => {
         this.menuOptions = [];
-        const menu = { menuId: 0, menuName: '主类目', children: [] };
+        const menu = { menuId: 0, menuName: "主类目", children: [] };
         menu.children = this.handleTree(response.data, "menuId");
         this.menuOptions.push(menu);
       });
     },
     // 显示状态字典翻译
     visibleFormat(row, column) {
-      if (row.menuType == "F") {
+      if (row.menuType === "F") {
         return "";
       }
       return this.selectDictLabel(this.visibleOptions, row.visible);
     },
     // 菜单状态字典翻译
     statusFormat(row, column) {
-      if (row.menuType == "F") {
+      if (row.menuType === "F") {
         return "";
       }
       return this.selectDictLabel(this.statusOptions, row.status);
@@ -334,7 +346,7 @@ export default {
     submitForm: function() {
       this.$refs["form"].validate(valid => {
         if (valid) {
-          if (this.form.menuId != undefined) {
+          if (this.form.menuId !== undefined) {
             updateMenu(this.form).then(response => {
               if (response.code === 200) {
                 this.msgSuccess("修改成功");
@@ -356,16 +368,23 @@ export default {
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      this.$confirm('是否确认删除名称为"' + row.menuName + '"的数据项?', "警告", {
+      this.$confirm(
+        '是否确认删除名称为"' + row.menuName + '"的数据项?',
+        "警告",
+        {
           confirmButtonText: "确定",
           cancelButtonText: "取消",
           type: "warning"
-        }).then(function() {
+        }
+      )
+        .then(function() {
           return delMenu(row.menuId);
-        }).then(() => {
+        })
+        .then(() => {
           this.getList();
           this.msgSuccess("删除成功");
-        }).catch(function() {});
+        })
+        .catch(function() {});
     }
   }
 };
