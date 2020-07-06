@@ -192,13 +192,7 @@
 </template>
 
 <script>
-import {
-  listMenu,
-  getMenu,
-  delMenu,
-  addMenu,
-  updateMenu
-} from "@/api/system/menu";
+import { getMenu, delMenu, addMenu, updateMenu } from "@/api/system/menu";
 import { api } from "@/utils/api.js";
 import Treeselect from "@riophae/vue-treeselect";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
@@ -277,7 +271,7 @@ export default {
     },
     /** 查询菜单下拉树结构 */
     getTreeselect() {
-      listMenu().then(response => {
+      api("system", "menu", "list").then(response => {
         this.menuOptions = [];
         const menu = { menuId: 0, menuName: "主类目", children: [] };
         menu.children = this.handleTree(response.data, "menuId");
@@ -348,19 +342,15 @@ export default {
         if (valid) {
           if (this.form.menuId !== undefined) {
             updateMenu(this.form).then(response => {
-              if (response.code === 200) {
-                this.msgSuccess("修改成功");
-                this.open = false;
-                this.getList();
-              }
+              this.msgSuccess("修改成功");
+              this.open = false;
+              this.getList();
             });
           } else {
             addMenu(this.form).then(response => {
-              if (response.code === 200) {
-                this.msgSuccess("新增成功");
-                this.open = false;
-                this.getList();
-              }
+              this.msgSuccess("新增成功");
+              this.open = false;
+              this.getList();
             });
           }
         }
