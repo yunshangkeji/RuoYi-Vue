@@ -1,4 +1,7 @@
 const getters = {
+  apiLoading: (state) => {
+    return (state.api.iLoading > 0)
+  },
   sidebar: state => state.app.sidebar,
   size: state => state.app.size,
   device: state => state.app.device,

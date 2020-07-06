@@ -66,10 +66,10 @@ service.interceptors.response.use(res => {
   if (typeof (res.data.setting) === "object") {
     setting_set(res.data.setting);
   }
-  console.log(res.data.data);
+  console.log("axios.res.data.data", res.data.data);
   return res.data.data;
 }, error => {
-  console.log("err" + error);
+  console.error("axios.response", error);
   Message({
     message: error.message,
     type: "error",
@@ -77,5 +77,15 @@ service.interceptors.response.use(res => {
   });
   return Promise.reject(error);
 });
-
-export default service;
+export default (option) => {
+  return new Promise((resolve, reject) => {
+    store.dispatch("api/begin");
+    service.request(option).then(res => {
+      resolve(res);
+      store.dispatch("api/end");
+    }).catch(error => {
+      reject(error);
+      store.dispatch("api/end");
+    });
+  });
+};

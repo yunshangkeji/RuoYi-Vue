@@ -44,16 +44,16 @@
           <svg-icon :icon-class="scope.row.icon" />
         </template>
       </el-table-column>
-      <el-table-column prop="orderNum" label="排序" width="60"></el-table-column>
+      <el-table-column prop="orderNum" label="排序" width="50"></el-table-column>
       <el-table-column prop="perms" label="权限标识" :show-overflow-tooltip="true"></el-table-column>
       <el-table-column prop="component" label="组件路径" :show-overflow-tooltip="true"></el-table-column>
-      <el-table-column prop="status" label="状态" :formatter="statusFormat" width="80"></el-table-column>
-      <el-table-column label="创建时间" align="center" prop="createTime">
+      <el-table-column prop="status" label="状态" :formatter="statusFormat" width="50"></el-table-column>
+      <el-table-column label="创建时间" align="center" prop="createTime" width="150">
         <template slot-scope="scope">
           <span>{{parseTime(scope.row.createTime)}}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+      <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="170">
         <template slot-scope="scope">
           <el-button
             v-hasPermi="['system:menu:edit']"
@@ -81,7 +81,7 @@
     </el-table>
 
     <!-- 添加或修改菜单对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="600px" append-to-body>
+    <el-dialog v-loading="loading" :title="title" :visible.sync="open" width="600px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-row>
           <el-col :span="24">
@@ -203,8 +203,6 @@ export default {
   components: { Treeselect, IconSelect },
   data() {
     return {
-      // 遮罩层
-      loading: true,
       // 菜单表格树数据
       menuList: [],
       // 菜单树选项
@@ -236,6 +234,12 @@ export default {
       }
     };
   },
+  computed: {
+    loading() {
+      // 如处于加载中，应显示遮罩层
+      return this.$store.getters.apiLoading;
+    }
+  },
   created() {
     this.getList();
     this.getDicts("sys_show_hide").then(response => {
@@ -252,10 +256,8 @@ export default {
     },
     /** 查询菜单列表 */
     getList() {
-      this.loading = true;
       api("system", "menu", "list", this.queryParams).then(response => {
         this.menuList = this.handleTree(response.data, "menuId");
-        this.loading = false;
       });
     },
     /** 转换菜单数据结构 */

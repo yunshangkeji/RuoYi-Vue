@@ -118,12 +118,12 @@
       </el-table-column>
       <el-table-column label="状态" align="center" prop="status" :formatter="statusFormat" />
       <el-table-column label="备注" align="center" prop="remark" :show-overflow-tooltip="true" />
-      <el-table-column label="创建时间" align="center" prop="createTime" width="180">
+      <el-table-column label="创建时间" align="center" prop="createTime" width="150">
         <template slot-scope="scope">
           <span>{{parseTime(scope.row.createTime)}}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+      <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="110">
         <template slot-scope="scope">
           <el-button
             v-hasPermi="['system:dict:edit']"
@@ -152,7 +152,7 @@
     />
 
     <!-- 添加或修改参数配置对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
+    <el-dialog v-loading="loading" :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="字典名称" prop="dictName">
           <el-input v-model="form.dictName" placeholder="请输入字典名称" />
@@ -196,8 +196,6 @@ export default {
   name: "Dict",
   data() {
     return {
-      // 遮罩层
-      loading: true,
       // 选中数组
       ids: [],
       // 非单个禁用
@@ -237,6 +235,12 @@ export default {
       }
     };
   },
+  computed: {
+    loading() {
+      // 如处于加载中，应显示遮罩层
+      return this.$store.getters.apiLoading;
+    }
+  },
   created() {
     this.getList();
     this.getDicts("sys_normal_disable").then(response => {
@@ -246,12 +250,10 @@ export default {
   methods: {
     /** 查询字典类型列表 */
     getList() {
-      this.loading = true;
       listType(this.addDateRange(this.queryParams, this.dateRange)).then(
         response => {
           this.typeList = response.rows;
           this.total = response.total;
-          this.loading = false;
         }
       );
     },
@@ -314,19 +316,15 @@ export default {
         if (valid) {
           if (this.form.dictId !== undefined) {
             updateType(this.form).then(response => {
-              if (response.code === 200) {
-                this.msgSuccess("修改成功");
-                this.open = false;
-                this.getList();
-              }
+              this.msgSuccess("修改成功");
+              this.open = false;
+              this.getList();
             });
           } else {
             addType(this.form).then(response => {
-              if (response.code === 200) {
-                this.msgSuccess("新增成功");
-                this.open = false;
-                this.getList();
-              }
+              this.msgSuccess("新增成功");
+              this.open = false;
+              this.getList();
             });
           }
         }
@@ -372,9 +370,7 @@ export default {
     /** 清理缓存按钮操作 */
     handleClearCache() {
       clearCache().then(response => {
-        if (response.code === 200) {
-          this.msgSuccess("清理成功");
-        }
+        this.msgSuccess("清理成功");
       });
     }
   }

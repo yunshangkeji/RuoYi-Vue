@@ -27,7 +27,7 @@ module.exports = {
     "vue/name-property-casing": ["error", "PascalCase"],
     "vue/no-v-html": "off",
     "vue/html-self-closing": "off",
-    "vue/mustache-interpolation-spacing": [2, "never"],
+    "vue/mustache-interpolation-spacing": [0, "never"],
     'accessor-pairs': 2,
     'arrow-spacing': [2, {
       'before': true,
@@ -169,13 +169,13 @@ module.exports = {
       'avoidEscape': true,
       'allowTemplateLiterals': true
     }],
-    'semi': [2, 'always'],
+    'semi': [0, 'always'],
     'semi-spacing': [2, {
       'before': false,
       'after': true
     }],
     'space-before-blocks': [2, 'always'],
-    'space-before-function-paren': [2, 'never'],
+    'space-before-function-paren': [0, 'never'],
     'space-in-parens': [2, 'never'],
     'space-infix-ops': 2,
     'space-unary-ops': [2, {
