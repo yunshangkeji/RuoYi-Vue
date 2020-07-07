@@ -192,7 +192,6 @@
 
 <script>
 import { getMenu, delMenu, addMenu, updateMenu } from "@/api/system/menu";
-import { api } from "@/utils/api.js";
 import Treeselect from "@riophae/vue-treeselect";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 import IconSelect from "@/components/IconSelect";
@@ -255,7 +254,7 @@ export default {
     },
     /** 查询菜单列表 */
     getList() {
-      api("system", "menu", "list", this.queryParams).then(response => {
+      this.api("system/menu:list", this.queryParams).then(response => {
         this.menuList = this.handleTree(response.data, "menuId");
       });
     },
@@ -272,7 +271,7 @@ export default {
     },
     /** 查询菜单下拉树结构 */
     getTreeselect() {
-      api("system", "menu", "list").then(response => {
+      this.api("system/menu:list").then(response => {
         this.menuOptions = [];
         const menu = { menuId: 0, menuName: "主类目", children: [] };
         menu.children = this.handleTree(response.data, "menuId");
