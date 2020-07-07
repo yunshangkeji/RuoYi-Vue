@@ -14,24 +14,24 @@ export function getMenu(menuId) {
   return request({
     url: '/admin/system/menu',
     method: 'get',
-    data: {menuId}
+    data: { menuId }
   })
 }
 
 // 查询菜单下拉树结构
 export function treeselect() {
   return request({
-    url: '/admin/system/menu_treeselect',
-    method: 'get'
+    url: '/admin/system/menu',
+    method: 'treeselect'
   })
 }
 
 // 根据角色ID查询菜单下拉树结构
 export function roleMenuTreeselect(roleId) {
   return request({
-    url: '/admin/system/menu_roleMenuTreeselect',
-    method: 'get',
-    data: {roleId}
+    url: '/admin/system/menu',
+    method: 'roleMenuTreeselect',
+    data: { roleId }
   })
 }
 
@@ -39,7 +39,7 @@ export function roleMenuTreeselect(roleId) {
 export function addMenu(data) {
   return request({
     url: '/admin/system/menu',
-    method: 'post',
+    method: 'create',
     data: data
   })
 }
@@ -48,7 +48,7 @@ export function addMenu(data) {
 export function updateMenu(data) {
   return request({
     url: '/admin/system/menu',
-    method: 'put',
+    method: 'update',
     data: data
   })
 }
@@ -58,6 +58,6 @@ export function delMenu(menuId) {
   return request({
     url: '/admin/system/menu',
     method: 'delete',
-    data: {menuId}
+    data: { menuId }
   })
 }
