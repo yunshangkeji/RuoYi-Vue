@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">
+  <div v-loading="loading" class="app-container">
     <el-form :inline="true">
       <el-form-item label="菜单名称">
         <el-input
@@ -33,7 +33,6 @@
     </el-form>
 
     <el-table
-      v-loading="loading"
       :data="menuList"
       row-key="menuId"
       :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
