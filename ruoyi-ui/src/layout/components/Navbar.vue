@@ -18,7 +18,7 @@
 
         <screenfull id="screenfull" class="right-menu-item hover-effect" />
 
-        <el-tooltip content="布局大小" effect="dark" placement="bottom">
+        <el-tooltip v-if="0" content="布局大小" effect="dark" placement="bottom">
           <size-select id="size-select" class="right-menu-item hover-effect" />
         </el-tooltip>
 

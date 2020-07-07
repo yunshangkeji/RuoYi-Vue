@@ -59,9 +59,10 @@ Vue.use(permission)
  * Currently MockJs will be used in the production environment,
  * please remove it before going online! ! !
  */
-
+var sSize = Cookies.get('size') || 'medium'
+sSize = 'mini'
 Vue.use(Element, {
-  size: Cookies.get('size') || 'medium' // set element-ui default size
+  size: sSize // set element-ui default size
 })
 
 Vue.config.productionTip = false
