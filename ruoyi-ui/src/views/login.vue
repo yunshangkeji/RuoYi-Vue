@@ -1,7 +1,7 @@
 <template>
-  <div class="login">
+  <div v-loading="loading" class="login">
     <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form">
-      <h3 class="title">若依后台管理系统</h3>
+      <h3 class="title">后台管理系统</h3>
       <el-form-item prop="username">
         <el-input v-model="loginForm.username" type="text" auto-complete="off" placeholder="账号">
           <svg-icon slot="prefix" icon-class="user" class="el-input__icon input-icon" />
@@ -35,7 +35,6 @@
       <el-checkbox v-model="loginForm.rememberMe" style="margin:0px 0px 25px 0px;">记住密码</el-checkbox>
       <el-form-item style="width:100%;">
         <el-button
-          :loading="loading"
           size="medium"
           type="primary"
           style="width:100%;"
@@ -47,7 +46,7 @@
       </el-form-item>
     </el-form>
     <!--  底部  -->
-    <div class="el-login-footer">
+    <div v-if="0" class="el-login-footer">
       <span>Copyright © 2018-2019 ruoyi.vip All Rights Reserved.</span>
     </div>
   </div>
@@ -81,9 +80,14 @@ export default {
         ],
         code: [{ required: true, trigger: "change", message: "验证码不能为空" }]
       },
-      loading: false,
       redirect: undefined
     };
+  },
+  computed: {
+    loading() {
+      // 如处于加载中，应显示遮罩层
+      return this.$store.getters.apiLoading;
+    }
   },
   watch: {
     $route: {
@@ -121,7 +125,6 @@ export default {
     handleLogin() {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
-          this.loading = true;
           if (this.loginForm.rememberMe) {
             Cookies.set("username", this.loginForm.username, { expires: 30 });
             Cookies.set("password", encrypt(this.loginForm.password), {
@@ -139,10 +142,8 @@ export default {
             .dispatch("Login", this.loginForm)
             .then(() => {
               this.$router.push({ path: this.redirect || "/" });
-              this.loading = false;
             })
             .catch(() => {
-              this.loading = false;
               this.getCode();
             });
         }

@@ -1,5 +1,5 @@
 module.exports = {
-  title: '若依管理系统',
+  title: "管理系统",
 
   /**
    * 是否系统布局配置
@@ -27,5 +27,5 @@ module.exports = {
    * The default is only used in the production env
    * If you want to also use it in dev, you can pass ['production', 'development']
    */
-  errorLog: 'production'
+  errorLog: "production"
 }
