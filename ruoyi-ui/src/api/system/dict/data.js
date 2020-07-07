@@ -21,8 +21,8 @@ export function getData(dictCode) {
 // 根据字典类型查询字典数据信息
 export function getDicts(dictType) {
   return request({
-    url: "/admin/system/dict_data_type",
-    method: "get",
+    url: "/admin/system/dict_data",
+    method: "getdicts",
     data: { dictType }
   });
 }
@@ -57,8 +57,8 @@ export function delData(dictCode) {
 // 导出字典数据
 export function exportData(query) {
   return request({
-    url: "/admin/system/dict_data_export",
-    method: "get",
+    url: "/admin/system/dict_data",
+    method: "export",
     data: query
   });
 }

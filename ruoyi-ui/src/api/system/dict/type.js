@@ -48,16 +48,16 @@ export function delType(dictId) {
 // 清理参数缓存
 export function clearCache() {
   return request({
-    url: "/admin/system/dict_type_clearCache",
-    method: "delete"
+    url: "/admin/system/dict_type",
+    method: "clearCache"
   });
 }
 
 // 导出字典类型
 export function exportType(query) {
   return request({
-    url: "/admin/system/dict_type_export",
-    method: "get",
+    url: "/admin/system/dict_type",
+    method: "export",
     data: query
   });
 }
@@ -65,7 +65,7 @@ export function exportType(query) {
 // 获取字典选择框列表
 export function optionselect() {
   return request({
-    url: "/admin/system/dict_type_optionselect",
-    method: "get"
+    url: "/admin/system/dict_type",
+    method: "optionselect"
   });
 }
