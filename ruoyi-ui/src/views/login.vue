@@ -1,6 +1,12 @@
 <template>
-  <div v-loading="loading" class="login">
-    <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form">
+  <div v-loading="logined" class="login">
+    <el-form
+      ref="loginForm"
+      v-loading="loading"
+      :model="loginForm"
+      :rules="loginRules"
+      class="login-form"
+    >
       <h3 class="title">后台管理系统</h3>
       <el-form-item prop="username">
         <el-input v-model="loginForm.username" type="text" auto-complete="off" placeholder="账号">
@@ -40,8 +46,9 @@
           style="width:100%;"
           @click.native.prevent="handleLogin"
         >
-          <span v-if="!loading">登 录</span>
-          <span v-else>登 录 中...</span>
+          <span v-if="logined">登录成功！正在加载控制台...</span>
+          <span v-else-if="loading">正在登录中...</span>
+          <span v-else>登 录</span>
         </el-button>
       </el-form-item>
     </el-form>
@@ -61,6 +68,7 @@ export default {
   name: "Login",
   data() {
     return {
+      logined: false,
       captcha_enable: false,
       codeUrl: "",
       cookiePassword: "",
@@ -141,6 +149,8 @@ export default {
           this.$store
             .dispatch("Login", this.loginForm)
             .then(() => {
+              // 登录成功
+              this.logined = true;
               this.$router.push({ path: this.redirect || "/" });
             })
             .catch(() => {
