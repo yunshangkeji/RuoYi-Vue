@@ -1,9 +1,9 @@
 <template>
   <div v-loading="loading" class="app-container">
     <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
-      <el-form-item label="用户名称" prop="dictName">
+      <el-form-item label="用户名称" prop="account">
         <el-input
-          v-model="queryParams.dictName"
+          v-model="queryParams.account"
           placeholder="请输入用户名称"
           clearable
           size="small"
@@ -11,19 +11,9 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="用户类型" prop="dictType">
-        <el-input
-          v-model="queryParams.dictType"
-          placeholder="请输入用户类型"
-          clearable
-          size="small"
-          style="width: 240px"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="状态" prop="status">
+      <el-form-item label="状态" prop="state">
         <el-select
-          v-model="queryParams.status"
+          v-model="queryParams.state"
           placeholder="用户状态"
           clearable
           size="small"
@@ -55,22 +45,31 @@
       </el-form-item>
     </el-form>
 
-    <el-table :data="typeList" @selection-change="handleSelectionChange">
+    <el-table
+      :data="typeList"
+      :default-sort="sortParams"
+      @selection-change="handleSelectionChange"
+      @sort-change="sortChange"
+    >
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="用户编号" align="center" prop="dictId" />
-      <el-table-column label="用户名称" align="center" prop="dictName" :show-overflow-tooltip="true" />
-      <el-table-column label="用户类型" align="center" :show-overflow-tooltip="true">
+      <el-table-column label="用户编号" align="center" prop="user_id" sortable="custom" />
+      <el-table-column
+        label="用户名称"
+        align="center"
+        prop="account"
+        :show-overflow-tooltip="true"
+        sortable="custom"
+      />
+      <el-table-column
+        label="状态"
+        align="center"
+        prop="state"
+        :formatter="statusFormat"
+        sortable="custom"
+      />
+      <el-table-column label="注册时间" align="center" prop="add_time" width="150" sortable="custom">
         <template slot-scope="scope">
-          <router-link :to="'/dict/type/data/' + scope.row.dictId" class="link-type">
-            <span>{{scope.row.dictType}}</span>
-          </router-link>
-        </template>
-      </el-table-column>
-      <el-table-column label="状态" align="center" prop="status" :formatter="statusFormat" />
-      <el-table-column label="备注" align="center" prop="remark" :show-overflow-tooltip="true" />
-      <el-table-column label="注册时间" align="center" prop="createTime" width="150">
-        <template slot-scope="scope">
-          <span>{{parseTime(scope.row.createTime)}}</span>
+          <span>{{parseTime(scope.row.add_time)}}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="110">
@@ -96,8 +95,8 @@
     <pagination
       v-show="total>0"
       :total="total"
-      :page.sync="queryParams.pageNum"
-      :limit.sync="queryParams.pageSize"
+      :page.sync="pageParams.pageNum"
+      :limit.sync="pageParams.pageSize"
       @pagination="getList"
     />
 
@@ -154,14 +153,15 @@ export default {
       statusOptions: [],
       // 日期范围
       dateRange: [],
-      // 查询参数
-      queryParams: {
+      // 分页参数
+      pageParams: {
         pageNum: 1,
-        pageSize: 10,
-        dictName: undefined,
-        dictType: undefined,
-        status: undefined
+        pageSize: 10
       },
+      // 查询参数
+      queryParams: {},
+      // 排序参数
+      sortParams: { prop: "user_id", order: "descending" },
       // 表单参数
       form: {},
       // 表单校验
@@ -190,17 +190,18 @@ export default {
   methods: {
     /** 查询用户类型列表 */
     getList() {
-      this.api(
-        "live/user:list",
-        this.addDateRange(this.queryParams, this.dateRange)
-      ).then(response => {
+      const pageParams = this.pageParams;
+      const queryParams = this.addDateRange(this.queryParams, this.dateRange);
+      const sortParams = this.sortParams;
+      const data = { pageParams, queryParams, sortParams };
+      this.api("live/user:list", data).then(response => {
         this.typeList = response.rows;
         this.total = response.total;
       });
     },
     // 用户状态用户翻译
     statusFormat(row, column) {
-      return this.selectDictLabel(this.statusOptions, row.status);
+      return this.selectDictLabel(this.statusOptions, row[column.property]);
     },
     // 取消按钮
     cancel() {
@@ -220,7 +221,7 @@ export default {
     },
     /** 搜索按钮操作 */
     handleQuery() {
-      this.queryParams.pageNum = 1;
+      this.pageParams.pageNum = 1;
       this.getList();
     },
     /** 重置按钮操作 */
@@ -291,6 +292,12 @@ export default {
           this.msgSuccess("删除成功");
         })
         .catch(function() {});
+    },
+    sortChange(data) {
+      this.sortParams.order = data.order;
+      this.sortParams.prop = data.prop;
+      this.pageParams.pageNum = 1;
+      this.getList();
     }
   }
 };
