@@ -27,7 +27,7 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="注册时间">
+      <el-form-item label="注册日期">
         <el-date-picker
           v-model="dateRange"
           size="small"
