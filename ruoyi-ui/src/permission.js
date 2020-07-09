@@ -4,6 +4,7 @@ import { Message } from 'element-ui'
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 import { getToken } from '@/utils/auth'
+import { getRouters } from '@/api/menu'
 
 NProgress.configure({ showSpinner: false })
 
@@ -39,17 +40,12 @@ router.beforeEach((to, from, next) => {
     // 可删 ↑
     return
   }
-  // 判断当前用户是否已拉取完user_info信息
-  store.dispatch('GetInfo').then(res => {
-    // 拉取user_info
-    const roles = res.roles
-    store.dispatch('GenerateRoutes', { roles }).then(accessRoutes => {
-      // 测试 默认静态页面
-      // store.dispatch('permission/generateRoutes', { roles }).then(accessRoutes => {
-      // 根据roles权限生成可访问的路由表
-      router.addRoutes(accessRoutes) // 动态添加可访问路由表
-      next({ ...to, replace: true }) // hack方法 确保addRoutes已完成
-    })
+  // 向后端请求路由数据
+  getRouters().then(data => {
+    store.dispatch('GetInfo', data)
+    store.dispatch('GenerateRoutes', data)
+    router.addRoutes(data.accessedRoutes) // 动态添加可访问路由表
+    next({ ...to, replace: true }) // hack方法 确保addRoutes已完成
   }).catch(err => {
     store.dispatch('FedLogOut').then(() => {
       Message.error(err)
