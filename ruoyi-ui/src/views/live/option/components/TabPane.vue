@@ -1,7 +1,20 @@
 <template>
   <el-form v-loading="loading" label-width="100px">
     <el-form-item v-for="(oRow, sName) in settings" :key="sName" :label="oRow.title" :prop="sName">
-      <el-input v-model="oRow.value" :placeholder="'请输入【'+oRow.title+'】'" />
+      <el-input
+        v-if="oRow.type==='text'"
+        v-model="oRow.value"
+        :placeholder="'请输入【'+oRow.title+'】'"
+      />
+      <el-input
+        v-if="oRow.type==='textarea'"
+        v-model="oRow.value"
+        type="textarea"
+        :rows="oRow.rows"
+      ></el-input>
+      <el-radio-group v-else-if="oRow.type==='radio'" v-model="oRow.value">
+        <el-radio v-for="(value,name) in oRow.option" :key="name" :label="name">{{value}}</el-radio>
+      </el-radio-group>
     </el-form-item>
     <el-button type="primary" @click="apiUpdate">保存设置</el-button>
   </el-form>
