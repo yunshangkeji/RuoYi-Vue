@@ -1,5 +1,5 @@
 <template>
-  <el-form v-loading="loading">
+  <el-form v-loading="loading" label-width="100px">
     <el-form-item v-for="(oRow, sName) in settings" :key="sName" :label="oRow.title" :prop="sName">
       <el-input v-model="oRow.value" :placeholder="'请输入【'+oRow.title+'】'" />
     </el-form-item>
@@ -18,7 +18,8 @@ export default {
   data() {
     return {
       settings: {},
-      apiQuery: {
+      apiReqQuery: {
+        optionName: this.$route.name.toLowerCase(),
         activedTabName: this.type
       }
     };
@@ -35,7 +36,7 @@ export default {
   methods: {
     apiGet() {
       this.$emit("create"); // for test
-      this.api("live/option:get", this.apiQuery).then(res => {
+      this.api("live/option:get", this.apiReqQuery).then(res => {
         this.settings = res.settings;
       });
     },
@@ -50,7 +51,9 @@ export default {
         mSetting.value = this.settings[sName].value;
         settings.push(mSetting);
       }
-      this.api("live/option:update", { settings }).then(response => {
+      const reqData = {};
+      reqData.settings = settings;
+      this.api("live/option:update", reqData).then(response => {
         this.apiGet();
       });
     }

@@ -1,6 +1,6 @@
 <template>
   <div class="tab-container">
-    <el-tabs v-model="activeName" style="margin-top:15px;" type="border-card">
+    <el-tabs v-model="activedTabName" style="margin-top:15px;" type="border-card">
       <el-tab-pane
         v-for="item in tabMapOptions"
         :key="item.key"
@@ -8,7 +8,7 @@
         :name="item.key"
       >
         <keep-alive>
-          <tab-pane v-if="activeName==item.key" :type="item.key" @create="showCreatedTimes" />
+          <tab-pane v-if="activedTabName==item.key" :type="item.key" />
         </keep-alive>
       </el-tab-pane>
     </el-tabs>
@@ -22,16 +22,13 @@ export default {
   components: { TabPane },
   data() {
     return {
-      tabMapOptions: [
-        { label: "公共设置", key: "configpub" },
-        { label: "私密设置", key: "configpri" }
-      ],
-      activeName: "configpub",
+      tabMapOptions: [],
+      activedTabName: "",
       createdTimes: 0
     };
   },
   watch: {
-    activeName(val) {
+    activedTabName(val) {
       this.$router.push(`${this.$route.path}?tab=${val}`);
     }
   },
@@ -39,12 +36,18 @@ export default {
     // init the default selected tab
     const tab = this.$route.query.tab;
     if (tab) {
-      this.activeName = tab;
+      this.activedTabName = tab;
     }
+    this.apiTabs();
   },
   methods: {
-    showCreatedTimes() {
-      this.createdTimes = this.createdTimes + 1;
+    apiTabs() {
+      const reqData = {};
+      reqData.optionName = this.$route.name.toLowerCase();
+      this.api("live/option:tabs", reqData).then(resData => {
+        this.tabMapOptions = resData.tabMapOptions;
+        this.activedTabName = this.tabMapOptions[0].key;
+      });
     }
   }
 };
