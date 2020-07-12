@@ -8,7 +8,7 @@
         :name="item.key"
       >
         <keep-alive>
-          <tab-pane v-if="activedTabName==item.key" :type="item.key" />
+          <tab-pane v-if="activedTabName===item.key" :type="item.key" />
         </keep-alive>
       </el-tab-pane>
     </el-tabs>
@@ -23,8 +23,7 @@ export default {
   data() {
     return {
       tabMapOptions: [],
-      activedTabName: "",
-      createdTimes: 0
+      activedTabName: ""
     };
   },
   computed: {
@@ -35,6 +34,9 @@ export default {
   },
   watch: {
     activedTabName(val) {
+      if (val === 0) {
+        return;
+      }
       this.$router.push(`${this.$route.path}?tab=${val}`);
     }
   },
@@ -52,7 +54,9 @@ export default {
       reqData.optionName = this.$route.name.toLowerCase();
       this.api("live/option:tabs", reqData).then(resData => {
         this.tabMapOptions = resData.tabMapOptions;
-        this.activedTabName = this.tabMapOptions[0].key;
+        if (parseFloat(this.activedTabName) === 0) {
+          this.activedTabName = this.tabMapOptions[0].key;
+        }
       });
     }
   }
