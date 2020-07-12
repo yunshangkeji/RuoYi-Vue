@@ -48,7 +48,12 @@ const user = {
     // 获取用户信息
     GetInfo({ commit }, data) {
       const user = data.user
-      const avatar = user.avatar === "" ? require("@/assets/image/profile.jpg") : process.env.VUE_APP_BASE_API + user.avatar;
+      const avatar = (function () {
+        if (typeof (user.avatar) === 'string' && user.avatar.length > 0) {
+          return user.avatar
+        }
+        return require("@/assets/image/profile.jpg")
+      })()
       if (data.roles && data.roles.length > 0) { // 验证返回的roles是否是一个非空数组
         commit('SET_ROLES', data.roles)
         commit('SET_PERMISSIONS', data.permissions)

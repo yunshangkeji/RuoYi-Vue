@@ -42,17 +42,13 @@ export default {
     },
     /* 保存设置按钮 */
     apiUpdate: function() {
-      const settings = [];
+      const settings = {};
       for (var sName in this.settings) {
-        const mSetting = {};
-        const aPath = sName.split("/");
-        mSetting.optionName = aPath[0];
-        mSetting.settingName = aPath[1];
-        mSetting.value = this.settings[sName].value;
-        settings.push(mSetting);
+        settings[sName] = this.settings[sName].value;
       }
       const reqData = {};
       reqData.settings = settings;
+      reqData.optionName = this.$route.name.toLowerCase();
       this.api("live/option:update", reqData).then(response => {
         this.apiGet();
       });
