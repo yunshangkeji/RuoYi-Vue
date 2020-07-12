@@ -1,5 +1,5 @@
 <template>
-  <div class="tab-container">
+  <div v-loading="loading" class="tab-container">
     <el-tabs v-model="activedTabName" style="margin-top:15px;" type="border-card">
       <el-tab-pane
         v-for="item in tabMapOptions"
@@ -26,6 +26,12 @@ export default {
       activedTabName: "",
       createdTimes: 0
     };
+  },
+  computed: {
+    loading() {
+      // 如处于加载中，应显示遮罩层
+      return this.$store.getters.apiLoading;
+    }
   },
   watch: {
     activedTabName(val) {

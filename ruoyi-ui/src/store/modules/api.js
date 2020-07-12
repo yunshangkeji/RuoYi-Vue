@@ -16,7 +16,9 @@ const actions = {
     commit("BEGIN");
   },
   end({ commit }) {
-    commit("END");
+    setTimeout(function () {
+      commit("END");
+    }, 1000)
   }
 };
 

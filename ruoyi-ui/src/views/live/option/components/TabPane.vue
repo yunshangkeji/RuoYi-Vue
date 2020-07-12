@@ -1,5 +1,5 @@
 <template>
-  <el-form v-loading="loading" label-width="100px">
+  <el-form label-width="100px">
     <el-form-item v-for="(oRow, sName) in settings" :key="sName" :label="oRow.title" :prop="sName">
       <el-input
         v-if="oRow.type==='text'"
