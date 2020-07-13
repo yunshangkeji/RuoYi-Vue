@@ -67,6 +67,9 @@ service.interceptors.response.use(res => {
     setting_set(res.data.setting);
   }
   console.log("axios.res.data.data", res.data.data);
+  if (typeof (res.data.msg) === "string" && res.data.msg.length > 0) {
+    Notification.success({ title: res.data.msg });
+  }
   return res.data.data;
 }, error => {
   console.error("axios.response", error);

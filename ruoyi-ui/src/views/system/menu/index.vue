@@ -40,7 +40,7 @@
       <el-table-column prop="menuName" label="菜单名称" :show-overflow-tooltip="true" width="160"></el-table-column>
       <el-table-column prop="icon" label="图标" align="center" width="100">
         <template slot-scope="scope">
-          <svg-icon :icon-class="scope.row.icon" />
+          <svg-icon v-if="scope.row.icon" :icon-class="scope.row.icon" />
         </template>
       </el-table-column>
       <el-table-column prop="orderNum" label="排序" width="50"></el-table-column>
