@@ -18,7 +18,10 @@
         <el-radio v-for="(value,name) in oRow.option" :key="name" :label="name">{{value}}</el-radio>
       </el-radio-group>
     </el-form-item>
-    <el-button type="primary" :disabled="loading" @click="apiUpdate">保存设置</el-button>
+    <el-form-item>
+      <el-button type="primary" :disabled="loading" @click="apiUpdate">保存设置</el-button>
+      <el-button icon="el-icon-refresh" :disabled="loading" @click="resetForm">重置</el-button>
+    </el-form-item>
   </el-form>
 </template>
 
@@ -67,6 +70,10 @@ export default {
       this.api("live/option:update", reqData).then(response => {
         this.apiGet();
       });
+    },
+    /** 重置按钮操作 */
+    resetForm() {
+      this.apiGet();
     }
   }
 };
