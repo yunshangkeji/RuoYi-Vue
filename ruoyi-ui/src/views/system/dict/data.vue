@@ -310,19 +310,13 @@ export default {
         if (valid) {
           if (this.form.dictCode !== undefined) {
             updateData(this.form).then(response => {
-              if (response.code === 200) {
-                this.msgSuccess("修改成功");
-                this.open = false;
-                this.getList();
-              }
+              this.open = false;
+              this.getList();
             });
           } else {
             addData(this.form).then(response => {
-              if (response.code === 200) {
-                this.msgSuccess("新增成功");
-                this.open = false;
-                this.getList();
-              }
+              this.open = false;
+              this.getList();
             });
           }
         }

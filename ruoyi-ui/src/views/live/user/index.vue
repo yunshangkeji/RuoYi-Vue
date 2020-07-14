@@ -52,13 +52,22 @@
       @sort-change="sortChange"
     >
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="用户编号" align="center" prop="user_id" sortable="custom" />
+      <el-table-column label="用户编号" width="100" align="center" prop="user_id" sortable="custom" />
       <el-table-column
-        label="用户名称"
+        label="登录账号"
         align="center"
         prop="account"
         :show-overflow-tooltip="true"
         sortable="custom"
+        width="100"
+      />
+      <el-table-column
+        label="用户昵称"
+        align="center"
+        prop="nickname"
+        :show-overflow-tooltip="true"
+        sortable="custom"
+        width="100"
       />
       <el-table-column
         label="状态"
@@ -66,12 +75,64 @@
         prop="state"
         :formatter="statusFormat"
         sortable="custom"
+        width="100"
+      />
+      <el-table-column
+        label="余额"
+        align="center"
+        prop="money"
+        :show-overflow-tooltip="true"
+        sortable="custom"
+        width="100"
+      />
+      <el-table-column
+        label="消费"
+        align="center"
+        prop="real_dml_money"
+        :show-overflow-tooltip="true"
+        sortable="custom"
+        width="100"
+      />
+      <el-table-column
+        label="设备类型"
+        align="center"
+        prop="operating_system"
+        :show-overflow-tooltip="true"
+        sortable="custom"
+        width="100"
       />
       <el-table-column label="注册时间" align="center" prop="add_time" width="150" sortable="custom">
         <template slot-scope="scope">
           <span>{{parseTime(scope.row.add_time)}}</span>
         </template>
       </el-table-column>
+      <el-table-column
+        label="当前登录时间"
+        align="center"
+        prop="login_time"
+        width="150"
+        sortable="custom"
+      >
+        <template slot-scope="scope">
+          <span>{{parseTime(scope.row.login_time)}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column
+        label="注册IP"
+        align="center"
+        prop="reg_ip"
+        :show-overflow-tooltip="true"
+        sortable="custom"
+        width="150"
+      />
+      <el-table-column
+        label="当前登录IP"
+        align="center"
+        prop="login_ip"
+        :show-overflow-tooltip="true"
+        sortable="custom"
+        width="150"
+      />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="110">
         <template slot-scope="scope">
           <el-button
@@ -81,13 +142,6 @@
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
           >修改</el-button>
-          <el-button
-            v-hasPermi="['system:dict:remove']"
-            size="mini"
-            type="text"
-            icon="el-icon-delete"
-            @click="handleDelete(scope.row)"
-          >删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -98,19 +152,22 @@
       :page.sync="pageParams.pageNum"
       :limit.sync="pageParams.pageSize"
       @pagination="getList"
-    />
+    ></pagination>
 
     <!-- 添加或修改参数配置对话框 -->
     <el-dialog v-loading="loading" :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="用户名称" prop="dictName">
-          <el-input v-model="form.dictName" placeholder="请输入用户名称" />
+        <el-form-item label="登录账号" prop="account">
+          <el-input v-model="form.account" />
         </el-form-item>
-        <el-form-item label="用户类型" prop="dictType">
-          <el-input v-model="form.dictType" placeholder="请输入用户类型" />
+        <el-form-item label="用户昵称" prop="nickname">
+          <el-input v-model="form.nickname" />
         </el-form-item>
-        <el-form-item label="状态" prop="status">
-          <el-radio-group v-model="form.status">
+        <el-form-item label="用户密码" prop="password">
+          <el-input v-model="form.password" />
+        </el-form-item>
+        <el-form-item label="状态" prop="state">
+          <el-radio-group v-model="form.state">
             <el-radio
               v-for="dict in statusOptions"
               :key="dict.dictValue"
@@ -132,7 +189,6 @@
 
 <script>
 export default {
-  name: "Dict",
   data() {
     return {
       // 选中数组
@@ -156,7 +212,7 @@ export default {
       // 分页参数
       pageParams: {
         pageNum: 1,
-        pageSize: 10
+        pageSize: 15
       },
       // 查询参数
       queryParams: {},
@@ -183,7 +239,7 @@ export default {
   },
   created() {
     this.getList();
-    this.getDicts("sys_normal_disable").then(response => {
+    this.getDicts("live_user_state").then(response => {
       this.statusOptions = response.data;
     });
   },
@@ -234,7 +290,7 @@ export default {
     handleAdd() {
       this.reset();
       this.open = true;
-      this.title = "添加用户类型";
+      this.title = "添加用户";
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
@@ -245,26 +301,26 @@ export default {
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset();
-      const dictId = row.dictId || this.ids;
-      this.api("live/user:get", { dictId }).then(response => {
+      const user_id = row.user_id;
+      this.api("live/user:get", { user_id }).then(response => {
         this.form = response.data;
         this.open = true;
-        this.title = "修改用户类型";
+        this.title = "修改用户信息";
       });
     },
     /** 提交按钮 */
     submitForm: function() {
       this.$refs["form"].validate(valid => {
         if (valid) {
-          if (this.form.dictId !== undefined) {
-            this.api("live/user:update", this.form).then(response => {
-              this.msgSuccess("修改成功");
+          const reqData = {};
+          reqData.form = this.form;
+          if (this.form.user_id !== undefined) {
+            this.api("live/user:update", reqData).then(response => {
               this.open = false;
               this.getList();
             });
           } else {
-            this.api("live/user:create", this.form).then(response => {
-              this.msgSuccess("新增成功");
+            this.api("live/user:create", reqData).then(response => {
               this.open = false;
               this.getList();
             });
