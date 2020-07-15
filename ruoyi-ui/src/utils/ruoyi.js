@@ -55,8 +55,14 @@ export function resetForm(refName) {
 
 // 添加日期范围
 export function addDateRange(params, dateRange) {
-  var search = params;
-  if (dateRange !== null && dateRange !== '') {
+  const search = {};
+  for (var k in params) {
+    search[k] = params[k];
+  }
+  if (dateRange === null) {
+    return search;
+  }
+  if (typeof (dateRange) === "object") {
     search.beginDate = this.dateRange[0];
     search.endDate = this.dateRange[1];
   }

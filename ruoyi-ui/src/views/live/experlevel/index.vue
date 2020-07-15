@@ -31,6 +31,7 @@
     </el-form>
 
     <el-table
+      ref="table1"
       :data="typeList"
       :default-sort="sortParams"
       @selection-change="handleSelectionChange"
@@ -181,6 +182,7 @@ export default {
     }
   },
   created() {
+    this.resetQuery();
     this.getList();
   },
   methods: {
@@ -215,6 +217,13 @@ export default {
     },
     /** 重置按钮操作 */
     resetQuery() {
+      // 排序参数
+      // this.$refs['table1'].clearSort();
+      if (typeof this.sortParams !== "object") {
+        this.sortParams = {};
+      }
+      this.sortParams.prop = "levelid";
+      this.sortParams.order = "ascending";
       this.dateRange = [];
       this.resetForm("queryForm");
       this.handleQuery();
