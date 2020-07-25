@@ -1,19 +1,19 @@
 <template>
   <div v-loading="loading" class="app-container">
     <el-form ref="queryForm" :model="apiListReqData.queryParams" :inline="true" label-width="68px">
-      <el-form-item label="成员编号" prop="id">
+      <el-form-item label="家族名称" prop="title">
         <el-input
-          v-model="apiListReqData.queryParams.id"
-          placeholder="请输入成员编号"
+          v-model="apiListReqData.queryParams.title"
+          placeholder="请输入家族名称"
           clearable
           size="small"
           style="width: 240px"
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="成员名称" prop="title">
+      <el-form-item label="登录账号" prop="username">
         <el-input
-          v-model="apiListReqData.queryParams.title"
+          v-model="apiListReqData.queryParams.username"
           placeholder="请输入成员名称"
           clearable
           size="small"
@@ -24,7 +24,7 @@
       <el-form-item label="状态" prop="status">
         <el-select
           v-model="apiListReqData.queryParams.status"
-          placeholder="成员状态"
+          placeholder="账号状态"
           clearable
           size="small"
           style="width: 240px"
@@ -64,7 +64,7 @@
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="成员编号" width="100" align="center" prop="id" sortable="custom" />
       <el-table-column
-        label="成员名称"
+        label="家族名称"
         align="center"
         prop="title"
         :show-overflow-tooltip="true"
@@ -72,9 +72,25 @@
         width="100"
       />
       <el-table-column
-        label="族长账号"
+        label="账号类型"
         align="center"
-        prop="head_funame"
+        prop="type"
+        :show-overflow-tooltip="true"
+        sortable="custom"
+        width="100"
+      />
+      <el-table-column
+        label="登录账号"
+        align="center"
+        prop="username"
+        :show-overflow-tooltip="true"
+        sortable="custom"
+        width="100"
+      />
+      <el-table-column
+        label="昵称"
+        align="center"
+        prop="nickname"
         :show-overflow-tooltip="true"
         sortable="custom"
         width="100"
@@ -88,16 +104,9 @@
         width="100"
       />
       <el-table-column
-        label="收益分成"
+        label="佣金比例"
         align="center"
-        prop="income_share_percent"
-        sortable="custom"
-        width="100"
-      />
-      <el-table-column
-        label="累计收益"
-        align="center"
-        prop="income_total"
+        prop="commission_rate"
         sortable="custom"
         width="100"
       />
@@ -107,14 +116,14 @@
         </template>
       </el-table-column>
       <el-table-column
-        label="成员长活跃时间"
+        label="活跃时间"
         align="center"
-        prop="head_session_actived"
+        prop="actived"
         width="150"
         sortable="custom"
       >
         <template slot-scope="scope">
-          <span>{{parseTime(scope.row.head_session_actived)}}</span>
+          <span>{{parseTime(scope.row.actived)}}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="110">
@@ -152,19 +161,19 @@
         :rules="elDialog.rules"
         label-width="80px"
       >
-        <el-form-item label="成员名称" prop="title">
-          <el-input v-model="elDialog.form.title" />
+        <el-form-item label="所属家族" prop="title">
+          <el-input v-model="elDialog.form.title" disabled />
         </el-form-item>
-        <el-form-item label="族长账号" prop="head_funame">
-          <el-input v-model="elDialog.form.head_funame" />
+        <el-form-item label="登录账号" prop="username">
+          <el-input v-model="elDialog.form.username" disabled />
         </el-form-item>
-        <el-form-item label="族长密码" prop="password">
+        <el-form-item label="登录密码" prop="password">
           <el-input v-model="elDialog.form.password" />
         </el-form-item>
-        <el-form-item label="提成比例" prop="income_share_percent">
-          <el-input v-model="elDialog.form.income_share_percent" />
+        <el-form-item label="佣金比例" prop="commission_rate">
+          <el-input v-model="elDialog.form.commission_rate" />
         </el-form-item>
-        <el-form-item label="成员状态" prop="status">
+        <el-form-item label="账号状态" prop="status">
           <el-radio-group v-model="elDialog.form.status">
             <el-radio
               v-for="dict in statusOptions"
@@ -179,7 +188,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="elDialog_submit">确 定</el-button>
-        <el-button @click="elDialog_cancel">取 消1111</el-button>
+        <el-button @click="elDialog_cancel">取 消</el-button>
       </div>
     </el-dialog>
   </div>
@@ -222,7 +231,7 @@ export default {
         // 查询参数
         queryParams: {},
         // 排序参数
-        sortParams: { prop: "user_id", order: "descending" },
+        sortParams: {},
         // 分页参数
         pageParams: {
           pageNum: 1,
@@ -239,14 +248,15 @@ export default {
   },
   created() {
     this.getList();
-    this.getDicts("live_user_state").then(response => {
-      this.statusOptions = response.data;
-    });
+    this.statusOptions = [];
+    this.statusOptions.push({ dictValue: "0", dictLabel: "未启用" });
+    this.statusOptions.push({ dictValue: "1", dictLabel: "已启用" });
+    this.statusOptions.push({ dictValue: "2", dictLabel: "已封禁" });
   },
   methods: {
     /** 查询用户类型列表 */
     getList() {
-      this.api("live/family:list", this.apiListReqData).then(data => {
+      this.api("live/family_user:list", this.apiListReqData).then((data) => {
         this.apiListResData = data;
       });
     },
@@ -289,7 +299,7 @@ export default {
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.dictId);
+      this.ids = selection.map((item) => item.dictId);
       this.single = selection.length !== 1;
       this.multiple = !selection.length;
     },
@@ -297,7 +307,7 @@ export default {
     handleUpdate(row) {
       this.elDialog_reset();
       const id = row.id;
-      this.api("live/family:get", { id }).then(response => {
+      this.api("live/family_user:get", { id }).then((response) => {
         this.elDialog.form = response.data;
         this.elDialog.open = true;
         this.elDialog.title = "修改用户信息";
@@ -305,15 +315,15 @@ export default {
       });
     },
     /** 提交按钮 */
-    elDialog_submit: function() {
-      this.$refs["elDialog_form"].validate(valid => {
+    elDialog_submit: function () {
+      this.$refs["elDialog_form"].validate((valid) => {
         if (!valid) {
           return;
         }
         const reqData = {};
         reqData.form = this.elDialog.form;
-        this.api(`live/family:${this.elDialog.method}`, reqData).then(
-          resData => {
+        this.api(`live/family_user:${this.elDialog.method}`, reqData).then(
+          (resData) => {
             this.elDialog.open = false;
             this.getList();
           }
@@ -332,14 +342,14 @@ export default {
           type: "warning"
         }
       )
-        .then(function() {
-          return this.api("live/family:delete", { dictIds });
+        .then(function () {
+          return this.api("live/family_user:delete", { dictIds });
         })
         .then(() => {
           this.getList();
           this.msgSuccess("删除成功");
         })
-        .catch(function() {});
+        .catch(function () {});
     },
     sortChange(data) {
       this.apiListReqData.sortParams.order = data.order;
