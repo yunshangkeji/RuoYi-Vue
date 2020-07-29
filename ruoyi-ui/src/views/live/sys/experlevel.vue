@@ -37,31 +37,31 @@
       @selection-change="handleSelectionChange"
       @sort-change="sortChange"
     >
-      <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="等级" width="100" align="center" prop="levelid" sortable="custom" />
-      <el-table-column label="经验上限" width="100" align="center" prop="level_up" sortable="custom" />
-      <el-table-column label="昵称色码" width="100" align="center" prop="colour" sortable="custom" />
-      <el-table-column label="昵称颜色" width="100" align="center" prop="colour" sortable="custom">
+      <el-table-column type="selection" min-width="55" align="center" />
+      <el-table-column label="等级" min-width="100" align="center" prop="levelid" sortable="custom" />
+      <el-table-column label="经验上限" min-width="100" align="center" prop="level_up" sortable="custom" />
+      <el-table-column label="昵称色码" min-width="100" align="center" prop="colour" sortable="custom" />
+      <el-table-column label="昵称颜色" min-width="100" align="center" prop="colour" sortable="custom">
         <template slot-scope="scope">
           <div :style="{'width':60+'px','height':25+'px','background-color': '#'+scope.row.colour}"></div>
         </template>
       </el-table-column>
-      <el-table-column label="等级图标" width="100" align="center" prop="thumb" sortable="custom">
+      <el-table-column label="等级图标" min-width="100" align="center" prop="thumb" sortable="custom">
         <template slot-scope="scope">
           <img height="25" style="vertical-align: middle;" :src="scope.row.thumb" />
         </template>
       </el-table-column>
-      <el-table-column label="等级背景" width="100" align="center" prop="bg" sortable="custom">
+      <el-table-column label="等级背景" min-width="100" align="center" prop="bg" sortable="custom">
         <template slot-scope="scope">
           <img height="25" style="vertical-align: middle;" :src="scope.row.bg" />
         </template>
       </el-table-column>
-      <el-table-column label="添加时间" align="center" prop="created" width="150" sortable="custom">
+      <el-table-column label="添加时间" align="center" prop="created" min-width="150" sortable="custom">
         <template slot-scope="scope">
           <span>{{parseTime(scope.row.created)}}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="110">
+      <el-table-column label="操作" align="center" class-name="small-padding fixed-width" min-width="110">
         <template slot-scope="scope">
           <el-button
             v-hasPermi="['system:dict:edit']"

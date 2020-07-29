@@ -1,6 +1,6 @@
 <template>
   <div v-loading="loading" class="tab-container">
-    <el-tabs v-model="activedTabName" style="margin-top:15px;" type="border-card">
+    <el-tabs v-model="activedTabName" tab-position="top" style="margin-top:15px;" type="">
       <el-tab-pane
         v-for="item in tabMapOptions"
         :key="item.key"
@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import TabPane from "./components/TabPane";
+import TabPane from "./option/TabPane";
 export default {
   name: "Tab",
   components: { TabPane },
