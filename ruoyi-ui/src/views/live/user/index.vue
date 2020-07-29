@@ -1,13 +1,13 @@
 <template>
   <div v-loading="loading" class="app-container">
-    <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
-      <el-form-item label="用户名称" prop="account">
+    <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="90px">
+      <el-form-item label="UID/用户名" prop="user_id">
         <el-input
-          v-model="queryParams.account"
-          placeholder="请输入用户名称"
+          v-model="queryParams.user_id"
+          placeholder="请输入UID或用户名"
           clearable
           size="small"
-          style="width: 240px"
+          style="width: 200px"
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
@@ -17,7 +17,7 @@
           placeholder="用户状态"
           clearable
           size="small"
-          style="width: 240px"
+          style="width: 200px"
         >
           <el-option
             v-for="dict in statusOptions"
@@ -52,9 +52,9 @@
       @sort-change="sortChange"
     >
       <el-table-column type="selection" min-width="55" align="center" />
-      <el-table-column label="用户编号" min-width="100" align="center" prop="user_id" sortable="custom" />
+      <el-table-column label="UID" min-width="100" align="center" prop="user_id" sortable="custom" />
       <el-table-column
-        label="登录账号"
+        label="用户名"
         align="center"
         prop="account"
         :show-overflow-tooltip="true"
@@ -217,7 +217,8 @@ export default {
       // 查询参数
       queryParams: {},
       // 排序参数
-      sortParams: { prop: "user_id", order: "descending" },
+      // sortParams: { prop: "user_id", order: "descending" },
+      sortParams: {},
       // 表单参数
       form: {},
       // 表单校验
