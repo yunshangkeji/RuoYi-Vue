@@ -51,15 +51,15 @@
       @selection-change="handleSelectionChange"
       @sort-change="sortChange"
     >
-      <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="用户编号" width="100" align="center" prop="user_id" sortable="custom" />
+      <el-table-column type="selection" min-width="55" align="center" />
+      <el-table-column label="用户编号" min-width="100" align="center" prop="user_id" sortable="custom" />
       <el-table-column
         label="登录账号"
         align="center"
         prop="account"
         :show-overflow-tooltip="true"
         sortable="custom"
-        width="100"
+        min-width="100"
       />
       <el-table-column
         label="用户昵称"
@@ -67,7 +67,7 @@
         prop="nickname"
         :show-overflow-tooltip="true"
         sortable="custom"
-        width="100"
+        min-width="100"
       />
       <el-table-column
         label="状态"
@@ -75,7 +75,7 @@
         prop="state"
         :formatter="statusFormat"
         sortable="custom"
-        width="100"
+        min-width="100"
       />
       <el-table-column
         label="余额"
@@ -83,7 +83,7 @@
         prop="money"
         :show-overflow-tooltip="true"
         sortable="custom"
-        width="100"
+        min-width="100"
       />
       <el-table-column
         label="消费"
@@ -91,7 +91,7 @@
         prop="real_dml_money"
         :show-overflow-tooltip="true"
         sortable="custom"
-        width="100"
+        min-width="100"
       />
       <el-table-column
         label="设备类型"
@@ -99,9 +99,9 @@
         prop="operating_system"
         :show-overflow-tooltip="true"
         sortable="custom"
-        width="100"
+        min-width="100"
       />
-      <el-table-column label="注册时间" align="center" prop="add_time" width="150" sortable="custom">
+      <el-table-column label="注册时间" align="center" prop="add_time" min-width="150" sortable="custom">
         <template slot-scope="scope">
           <span>{{parseTime(scope.row.add_time)}}</span>
         </template>
@@ -110,7 +110,7 @@
         label="当前登录时间"
         align="center"
         prop="login_time"
-        width="150"
+        min-width="150"
         sortable="custom"
       >
         <template slot-scope="scope">
@@ -123,7 +123,7 @@
         prop="reg_ip"
         :show-overflow-tooltip="true"
         sortable="custom"
-        width="150"
+        min-width="150"
       />
       <el-table-column
         label="当前登录IP"
@@ -131,9 +131,9 @@
         prop="login_ip"
         :show-overflow-tooltip="true"
         sortable="custom"
-        width="150"
+        min-width="150"
       />
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="110">
+      <el-table-column label="操作" align="center" class-name="small-padding fixed-width" min-width="110">
         <template slot-scope="scope">
           <el-button
             v-hasPermi="['system:dict:edit']"

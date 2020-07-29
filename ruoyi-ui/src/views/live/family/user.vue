@@ -61,15 +61,15 @@
       @selection-change="handleSelectionChange"
       @sort-change="sortChange"
     >
-      <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="成员编号" width="100" align="center" prop="id" sortable="custom" />
+      <el-table-column type="selection" min-width="55" align="center" />
+      <el-table-column label="成员编号" min-width="100" align="center" prop="id" sortable="custom" />
       <el-table-column
         label="家族名称"
         align="center"
         prop="title"
         :show-overflow-tooltip="true"
         sortable="custom"
-        width="100"
+        min-width="100"
       />
       <el-table-column
         label="账号类型"
@@ -77,7 +77,7 @@
         prop="type"
         :show-overflow-tooltip="true"
         sortable="custom"
-        width="100"
+        min-width="100"
       />
       <el-table-column
         label="登录账号"
@@ -85,7 +85,7 @@
         prop="username"
         :show-overflow-tooltip="true"
         sortable="custom"
-        width="100"
+        min-width="100"
       />
       <el-table-column
         label="昵称"
@@ -93,7 +93,7 @@
         prop="nickname"
         :show-overflow-tooltip="true"
         sortable="custom"
-        width="100"
+        min-width="100"
       />
       <el-table-column
         label="状态"
@@ -101,16 +101,16 @@
         prop="status"
         :formatter="statusFormat"
         sortable="custom"
-        width="100"
+        min-width="100"
       />
       <el-table-column
         label="佣金比例"
         align="center"
         prop="commission_rate"
         sortable="custom"
-        width="100"
+        min-width="100"
       />
-      <el-table-column label="开通时间" align="center" prop="created" width="150" sortable="custom">
+      <el-table-column label="开通时间" align="center" prop="created" min-width="150" sortable="custom">
         <template slot-scope="scope">
           <span>{{parseTime(scope.row.created)}}</span>
         </template>
@@ -119,14 +119,14 @@
         label="活跃时间"
         align="center"
         prop="actived"
-        width="150"
+        min-width="150"
         sortable="custom"
       >
         <template slot-scope="scope">
           <span>{{parseTime(scope.row.actived)}}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="110">
+      <el-table-column label="操作" align="center" class-name="small-padding fixed-width" min-width="110">
         <template slot-scope="scope">
           <el-button
             v-hasPermi="['system:dict:edit']"

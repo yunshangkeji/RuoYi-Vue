@@ -61,15 +61,15 @@
       @selection-change="handleSelectionChange"
       @sort-change="sortChange"
     >
-      <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="家族编号" width="100" align="center" prop="id" sortable="custom" />
+      <el-table-column type="selection" min-width="55" align="center" />
+      <el-table-column label="家族编号" min-width="100" align="center" prop="id" sortable="custom" />
       <el-table-column
         label="家族名称"
         align="center"
         prop="title"
         :show-overflow-tooltip="true"
         sortable="custom"
-        width="100"
+        min-width="100"
       />
       <el-table-column
         label="族长账号"
@@ -77,7 +77,7 @@
         prop="head_funame"
         :show-overflow-tooltip="true"
         sortable="custom"
-        width="100"
+        min-width="100"
       />
       <el-table-column
         label="状态"
@@ -85,23 +85,23 @@
         prop="status"
         :formatter="statusFormat"
         sortable="custom"
-        width="100"
+        min-width="100"
       />
       <el-table-column
         label="收益分成"
         align="center"
         prop="income_share_percent"
         sortable="custom"
-        width="100"
+        min-width="100"
       />
       <el-table-column
         label="累计收益"
         align="center"
         prop="income_total"
         sortable="custom"
-        width="100"
+        min-width="100"
       />
-      <el-table-column label="开通时间" align="center" prop="created" width="150" sortable="custom">
+      <el-table-column label="开通时间" align="center" prop="created" min-width="150" sortable="custom">
         <template slot-scope="scope">
           <span>{{parseTime(scope.row.created)}}</span>
         </template>
@@ -110,14 +110,14 @@
         label="家族长活跃时间"
         align="center"
         prop="head_session_actived"
-        width="150"
+        min-width="150"
         sortable="custom"
       >
         <template slot-scope="scope">
           <span>{{parseTime(scope.row.head_session_actived)}}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="110">
+      <el-table-column label="操作" align="center" class-name="small-padding fixed-width" min-width="110">
         <template slot-scope="scope">
           <el-button
             v-hasPermi="['system:dict:edit']"
