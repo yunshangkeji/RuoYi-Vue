@@ -64,7 +64,7 @@ export default {
     setOptions({ expectedData, actualData } = {}) {
       this.chart.setOption({
         xAxis: {
-          data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+          data: ['2020-07-27', '2020-07-27', '2020-07-27', '2020-07-27', '2020-07-27', '2020-07-27', '2020-07-27'],
           boundaryGap: false,
           axisTick: {
             show: false
@@ -90,10 +90,10 @@ export default {
           }
         },
         legend: {
-          data: ['expected', 'actual']
+          data: ['活跃用户', '在线时长']
         },
         series: [{
-          name: 'expected', itemStyle: {
+          name: '活跃用户', itemStyle: {
             normal: {
               color: '#FF005A',
               lineStyle: {
@@ -109,7 +109,7 @@ export default {
           animationEasing: 'cubicInOut'
         },
         {
-          name: 'actual',
+          name: '在线时长',
           smooth: true,
           type: 'line',
           itemStyle: {
@@ -118,9 +118,6 @@ export default {
               lineStyle: {
                 color: '#3888fa',
                 width: 2
-              },
-              areaStyle: {
-                color: '#f3f8ff'
               }
             }
           },
