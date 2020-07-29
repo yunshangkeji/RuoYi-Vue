@@ -1,11 +1,12 @@
 <template>
-  <el-form label-width="100px" @submit.native.prevent="apiUpdate">
+  <el-form label-width="200px" style="padding-top: 20px;" @submit.native.prevent="apiUpdate">
     <el-form-item v-for="(oRow, sName) in settings" :key="sName" :label="oRow.title" :prop="sName">
       <el-input
         v-if="oRow.type==='text'"
         v-model="oRow.value"
         :placeholder="'请输入【'+oRow.title+'】'"
         :disabled="loading"
+        style="width: 500px;"
       />
       <el-input
         v-if="oRow.type==='textarea'"
@@ -13,10 +14,13 @@
         type="textarea"
         :rows="oRow.rows"
         :disabled="loading"
+        style="width: 500px;"
       ></el-input>
       <el-radio-group v-else-if="oRow.type==='radio'" v-model="oRow.value" :disabled="loading">
         <el-radio v-for="(value,name) in oRow.option" :key="name" :label="name">{{value}}</el-radio>
       </el-radio-group>
+      <span v-if="oRow.note" style="color: #999999; padding-left: 30px;">{{oRow.note}}</span>
+      <a v-if="oRow.link" style="padding-left: 30px;" :href="oRow.link.href" target="_blank">{{oRow.link.title}}</a>
     </el-form-item>
     <el-form-item>
       <el-button type="primary" :disabled="loading" @click="apiUpdate">保存设置</el-button>
