@@ -38,7 +38,7 @@
     <el-table
       ref="table1"
       :data="apiListResData.rows"
-      :default-sort="sortParams"
+      :default-sort="apiListResData.sortParams"
       @selection-change="handleSelectionChange"
       @sort-change="sortChange"
     >
@@ -82,25 +82,25 @@
     <pagination
       v-show="apiListResData.total>0"
       :total="apiListResData.total"
-      :page.sync="pageParams.pageNum"
-      :limit.sync="pageParams.pageSize"
+      :page.sync="apiListReqData.pageParams.pageNum"
+      :limit.sync="apiListReqData.pageParams.pageSize"
       @pagination="getList"
     ></pagination>
 
     <!-- 添加或修改参数配置对话框 -->
-    <el-dialog v-loading="loading" :title="title" :visible.sync="open" width="500px" append-to-body>
-      <el-form ref="form" :model="form" label-width="80px">
+    <el-dialog v-loading="loading" :title="elDialog.title" :visible.sync="elDialog.open" width="500px" append-to-body>
+      <el-form ref="form" :model="elDialog.form" label-width="80px">
         <el-form-item label="等级" prop="levelid">
-          <el-input v-model="form.levelid" />
+          <el-input v-model="elDialog.form.levelid" />
         </el-form-item>
         <el-form-item label="经验上限" prop="level_up">
-          <el-input v-model="form.level_up" />
+          <el-input v-model="elDialog.form.level_up" />
         </el-form-item>
         <el-form-item label="昵称颜色" prop="colour">
-          <el-color-picker v-model="form.colour"></el-color-picker>
+          <el-color-picker v-model="elDialog.form.colour"></el-color-picker>
         </el-form-item>
         <el-form-item label="等级图标" prop="thumb">
-          <img height="25" :src="form.thumb" />
+          <img height="25" :src="elDialog.form.thumb" />
           <el-upload
             :action="elUpload.action"
             :data="elUpload.data"
@@ -113,7 +113,7 @@
           </el-upload>
         </el-form-item>
         <el-form-item label="等级背景" prop="bg">
-          <img height="25" :src="form.bg" />
+          <img height="25" :src="elDialog.form.bg" />
           <el-upload
             :action="elUpload.action"
             :data="elUpload.data"
@@ -149,20 +149,31 @@ export default {
       single: true,
       // 非多个禁用
       multiple: true,
-      // 弹出层标题
-      title: "",
-      // 是否显示弹出层
-      open: false,
-      // 日期范围
-      dateRange: [],
-      // 分页参数
-      pageParams: {
-        pageNum: 1,
-        pageSize: 15
+      elDialog: {
+        // 弹出层标题
+        title: "",
+        // 是否显示弹出层
+        open: false,
+        method: "",
+        // 表单参数
+        form: {},
+        // 表单校验
+        rules: {
+          title: [
+            { required: true, message: "成员名称不能为空", trigger: "blur" }
+          ]
+        }
       },
       apiListReqData: {
         // 查询参数
-        queryParams: {}
+        queryParams: {},
+        // 排序参数
+        sortParams: {},
+        // 分页参数
+        pageParams: {
+          pageNum: 1,
+          pageSize: 15
+        }
       },
       apiListResData: {
         // 总条数
@@ -171,11 +182,6 @@ export default {
         rows: [],
         query: []
       },
-      // 排序参数
-      sortParams: {},
-      // 表单参数
-      form: {},
-      method: "",
       api_path: ""
     };
   },
@@ -193,20 +199,15 @@ export default {
   methods: {
     /** 查询列表 */
     getList() {
-      const pageParams = this.pageParams;
-      const queryParams = this.addDateRange(
-        this.apiListReqData.queryParams,
-        this.dateRange
+      this.api(`${this.api_path}:list`, this.apiListReqData).then(
+        apiListResData => {
+          this.apiListResData = apiListResData;
+        }
       );
-      const sortParams = this.sortParams;
-      const data = { pageParams, queryParams, sortParams };
-      this.api(`${this.api_path}:list`, data).then(apiListResData => {
-        this.apiListResData = apiListResData;
-      });
     },
     // 取消按钮
     cancel() {
-      this.open = false;
+      this.elDialog.open = false;
       this.reset();
     },
     // 表单重置
@@ -219,27 +220,26 @@ export default {
     },
     /** 搜索按钮操作 */
     handleQuery() {
-      this.pageParams.pageNum = 1;
+      this.apiListReqData.pageParams.pageNum = 1;
       this.getList();
     },
     /** 重置按钮操作 */
     resetQuery() {
       // 排序参数
-      this.$refs['table1'].clearSort();
+      this.$refs["table1"].clearSort();
       if (typeof this.sortParams !== "object") {
-        this.sortParams = {};
+        this.apiListReqData.sortParams = {};
       }
-      this.sortParams.prop = "";
-      this.sortParams.order = "";
-      this.dateRange = [];
+      this.apiListReqData.sortParams.prop = "";
+      this.apiListReqData.sortParams.order = "";
       this.resetForm("queryForm");
       this.handleQuery();
     },
     /** 新增按钮操作 */
     handleAdd() {
       this.reset();
-      this.open = true;
-      this.title = "添加等级";
+      this.elDialog.open = true;
+      this.elDialog.title = "添加等级";
       this.method = "create";
     },
     // 多选框选中数据
@@ -256,10 +256,10 @@ export default {
         case "edit":
           this.reset();
           this.api(`${that.api_path}:get`, { levelid }).then(response => {
-            this.form = response.data;
-            this.open = true;
-            this.title = "修改等级信息";
-            this.method = "update";
+            this.elDialog.form = response.data;
+            this.elDialog.open = true;
+            this.elDialog.title = "修改等级信息";
+            this.elDialog.method = "update";
           });
           break;
         case "delete":
@@ -284,25 +284,28 @@ export default {
         if (valid) {
           const reqData = {};
           reqData.form = this.form;
-          this.api(`${that.api_path}:${this.method}`, reqData).then(response => {
-            this.open = false;
-            this.getList();
-          });
+          this.api(`${that.api_path}:${this.method}`, reqData).then(
+            response => {
+              this.elDialog.open = false;
+              this.getList();
+            }
+          );
         }
       });
     },
     sortChange(data) {
-      this.sortParams.order = data.order;
-      this.sortParams.prop = data.prop;
-      this.pageParams.pageNum = 1;
+      this.apiListReqData.sortParams.order = data.order;
+      this.apiListReqData.sortParams.prop = data.prop;
+      this.apiListReqData.pageParams.pageNum = 1;
       this.getList();
     },
     elUpload_onbefore(file) {
+      const that = this;
       return new Promise((resolve, reject) => {
         const reqData = {};
         reqData.file = {};
         reqData.file.name = file.name;
-        this.api("live/experlevel:upload", reqData).then(data => {
+        this.api(`${that.api_path}:upload`, reqData).then(data => {
           this.elUpload.action = data.upload_form.url;
           this.elUpload.data = data.upload_form.formdata;
           resolve(file);
