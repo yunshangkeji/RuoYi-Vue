@@ -88,8 +88,14 @@
     ></pagination>
 
     <!-- 添加或修改参数配置对话框 -->
-    <el-dialog v-loading="loading" :title="elDialog.title" :visible.sync="elDialog.open" width="500px" append-to-body>
-      <el-form ref="form" :model="elDialog.form" label-width="80px">
+    <el-dialog
+      v-loading="loading"
+      :title="elDialog.title"
+      :visible.sync="elDialog.visible"
+      width="500px"
+      append-to-body
+    >
+      <el-form ref="elDialog_form" :model="elDialog.form" label-width="80px">
         <el-form-item label="等级" prop="levelid">
           <el-input v-model="elDialog.form.levelid" />
         </el-form-item>
@@ -153,7 +159,7 @@ export default {
         // 弹出层标题
         title: "",
         // 是否显示弹出层
-        open: false,
+        visible: false,
         method: "",
         // 表单参数
         form: {},
@@ -207,16 +213,16 @@ export default {
     },
     // 取消按钮
     cancel() {
-      this.elDialog.open = false;
-      this.reset();
+      this.elDialog.visible = false;
+      this.elDialog_reset();
     },
     // 表单重置
-    reset() {
-      this.form = {
+    elDialog_reset() {
+      this.elDialog.form = {
         thumb: "",
         bg: ""
       };
-      this.resetForm("form");
+      this.resetForm("elDialog_form");
     },
     /** 搜索按钮操作 */
     handleQuery() {
@@ -237,8 +243,8 @@ export default {
     },
     /** 新增按钮操作 */
     handleAdd() {
-      this.reset();
-      this.elDialog.open = true;
+      this.elDialog_reset();
+      this.elDialog.visible = true;
       this.elDialog.title = "添加等级";
       this.method = "create";
     },
@@ -254,10 +260,10 @@ export default {
       const levelid = row.levelid;
       switch (name) {
         case "edit":
-          this.reset();
+          this.elDialog_reset();
           this.api(`${that.api_path}:get`, { levelid }).then(response => {
             this.elDialog.form = response.data;
-            this.elDialog.open = true;
+            this.elDialog.visible = true;
             this.elDialog.title = "修改等级信息";
             this.elDialog.method = "update";
           });
@@ -280,13 +286,13 @@ export default {
     /** 提交按钮 */
     submitForm: function() {
       const that = this;
-      this.$refs["form"].validate(valid => {
+      this.$refs["elDialog_form"].validate(valid => {
         if (valid) {
           const reqData = {};
-          reqData.form = this.form;
-          this.api(`${that.api_path}:${this.method}`, reqData).then(
+          reqData.form = that.elDialog.form;
+          this.api(`${that.api_path}:${that.elDialog.method}`, reqData).then(
             response => {
-              this.elDialog.open = false;
+              this.elDialog.visible = false;
               this.getList();
             }
           );
@@ -315,13 +321,13 @@ export default {
     elUpload_onsuccess_1(data) {
       console.log("elUpload_onsuccess_1", data);
       this.msgSuccess(data.msg);
-      this.form.thumb = data.imageUrl;
+      this.elDialog.form.thumb = data.imageUrl;
       this.elUpload.fileList = [];
     },
     elUpload_onsuccess_2(data) {
       console.log("elUpload_onsuccess_2", data);
       this.msgSuccess(data.msg);
-      this.form.bg = data.imageUrl;
+      this.elDialog.form.bg = data.imageUrl;
       this.elUpload.fileList = [];
     }
   }
