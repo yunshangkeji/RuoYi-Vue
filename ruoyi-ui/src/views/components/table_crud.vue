@@ -237,8 +237,8 @@ export default {
     handleAdd() {
       this.elDialog_reset();
       this.elDialog.visible = true;
-      this.elDialog.title = "添加等级";
-      this.method = "create";
+      this.elDialog.title = `添加${this.apiListResData.title}`;
+      this.elDialog.method = "create";
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
@@ -256,16 +256,20 @@ export default {
           this.api(`${that.api_path}:get`, { oper_id }).then(apiFormResData => {
             this.elDialog.formValue = apiFormResData.formValue;
             this.elDialog.visible = true;
-            this.elDialog.title = "修改等级信息";
+            this.elDialog.title = `修改${this.apiListResData.title}信息[${oper_id}]`;
             this.elDialog.method = "update";
           });
           break;
         case "delete":
-          this.$confirm(`是否确认删除等级为[${oper_id}]的数据项?`, "警告", {
-            confirmButtonText: "确定",
-            cancelButtonText: "取消",
-            type: "warning"
-          })
+          this.$confirm(
+            `是否确认删除${this.apiListResData.title}为[${oper_id}]的数据项?`,
+            "警告",
+            {
+              confirmButtonText: "确定",
+              cancelButtonText: "取消",
+              type: "warning"
+            }
+          )
             .then(function() {
               return that.api(`${that.api_path}:delete`, { oper_id });
             })
@@ -279,16 +283,17 @@ export default {
     submitForm: function() {
       const that = this;
       this.$refs["elDialog_form"].validate(valid => {
-        if (valid) {
-          const reqData = {};
-          reqData.formValue = that.elDialog.formValue;
-          this.api(`${that.api_path}:${that.elDialog.method}`, reqData).then(
-            response => {
-              this.elDialog.visible = false;
-              this.getList();
-            }
-          );
+        if (!valid) {
+          return;
         }
+        const reqData = {};
+        reqData.formValue = that.elDialog.formValue;
+        this.api(`${that.api_path}:${that.elDialog.method}`, reqData).then(
+          response => {
+            this.elDialog.visible = false;
+            this.getList();
+          }
+        );
       });
     },
     sortChange(data) {
