@@ -2,15 +2,20 @@
   <div v-loading="loading" class="app-container">
     <el-form
       ref="queryForm"
-      :model="queryParams"
+      :model="apiListReqData.queryParams"
       :inline="true"
       label-width="68px"
       @submit.native.prevent="handleQuery"
     >
-      <el-form-item label="等级" prop="levelid">
+      <el-form-item
+        v-for="(item,parsm_name) in apiListResData.query"
+        :key="parsm_name"
+        :label="item.title"
+        prop="levelid"
+      >
         <el-input
-          v-model="queryParams.levelid"
-          placeholder="请输入等级"
+          v-model="apiListReqData.queryParams[parsm_name]"
+          :placeholder="'请输入'+item.title"
           clearable
           size="small"
           style="width: 240px"
@@ -32,58 +37,51 @@
 
     <el-table
       ref="table1"
-      :data="typeList"
+      :data="apiListResData.rows"
       :default-sort="sortParams"
       @selection-change="handleSelectionChange"
       @sort-change="sortChange"
     >
       <el-table-column type="selection" min-width="55" align="center" />
-      <el-table-column label="等级" min-width="100" align="center" prop="levelid" sortable="custom" />
-      <el-table-column label="经验上限" min-width="100" align="center" prop="level_up" sortable="custom" />
-      <el-table-column label="昵称色码" min-width="100" align="center" prop="colour" sortable="custom" />
-      <el-table-column label="昵称颜色" min-width="100" align="center" prop="colour" sortable="custom">
+      <el-table-column
+        v-for="(column_info,column_name) in apiListResData.column"
+        :key="column_name"
+        :label="column_info.label"
+        :min-width="column_info.width"
+        align="center"
+        :prop="column_info.prop"
+        :sortable="column_info.buttons?false:'custom'"
+        class-name="small-padding fixed-width"
+      >
         <template slot-scope="scope">
-          <div :style="{'width':60+'px','height':25+'px','background-color': '#'+scope.row.colour}"></div>
-        </template>
-      </el-table-column>
-      <el-table-column label="等级图标" min-width="100" align="center" prop="thumb" sortable="custom">
-        <template slot-scope="scope">
-          <img height="25" style="vertical-align: middle;" :src="scope.row.thumb" />
-        </template>
-      </el-table-column>
-      <el-table-column label="等级背景" min-width="100" align="center" prop="bg" sortable="custom">
-        <template slot-scope="scope">
-          <img height="25" style="vertical-align: middle;" :src="scope.row.bg" />
-        </template>
-      </el-table-column>
-      <el-table-column label="添加时间" align="center" prop="created" min-width="150" sortable="custom">
-        <template slot-scope="scope">
-          <span>{{parseTime(scope.row.created)}}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width" min-width="110">
-        <template slot-scope="scope">
-          <el-button
-            v-hasPermi="['system:dict:edit']"
-            size="mini"
-            type="text"
-            icon="el-icon-edit"
-            @click="handleUpdate(scope.row)"
-          >修改</el-button>
-          <el-button
-            v-hasPermi="['system:dict:remove']"
-            size="mini"
-            type="text"
-            icon="el-icon-delete"
-            @click="handleDelete(scope.row)"
-          >删除</el-button>
+          <div
+            v-if="column_info.type==='color'"
+            :style="{'width':60+'px','height':25+'px','background-color': '#'+scope.row[column_info.prop]}"
+          ></div>
+          <img
+            v-else-if="column_info.type==='img'"
+            height="25"
+            style="vertical-align: middle;"
+            :src="scope.row[column_info.prop]"
+          />
+          <span v-else-if="column_info.buttons">
+            <el-button
+              v-for="(button_info,button_name) in column_info.buttons"
+              :key="button_name"
+              size="mini"
+              type="text"
+              :icon="'el-icon-'+button_name"
+              @click="handleTableOperate(button_name,scope.row)"
+            >{{button_info.title}}</el-button>
+          </span>
+          <span v-else>{{scope.row[column_info.prop]}}</span>
         </template>
       </el-table-column>
     </el-table>
 
     <pagination
-      v-show="total>0"
-      :total="total"
+      v-show="apiListResData.total>0"
+      :total="apiListResData.total"
       :page.sync="pageParams.pageNum"
       :limit.sync="pageParams.pageSize"
       @pagination="getList"
@@ -151,10 +149,6 @@ export default {
       single: true,
       // 非多个禁用
       multiple: true,
-      // 总条数
-      total: 0,
-      // 表格数据
-      typeList: [],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
@@ -166,13 +160,23 @@ export default {
         pageNum: 1,
         pageSize: 15
       },
-      // 查询参数
-      queryParams: {},
+      apiListReqData: {
+        // 查询参数
+        queryParams: {}
+      },
+      apiListResData: {
+        // 总条数
+        total: 0,
+        // 表格数据
+        rows: [],
+        query: []
+      },
       // 排序参数
-      sortParams: { prop: "levelid", order: "ascending" },
+      sortParams: {},
       // 表单参数
       form: {},
-      method: ""
+      method: "",
+      api_path: ""
     };
   },
   computed: {
@@ -182,19 +186,22 @@ export default {
     }
   },
   created() {
-    this.resetQuery();
+    const route_path = this.$route.path.split("/");
+    this.api_path = `${route_path[1]}/${route_path[2]}_${route_path[3]}`;
     this.getList();
   },
   methods: {
     /** 查询列表 */
     getList() {
       const pageParams = this.pageParams;
-      const queryParams = this.addDateRange(this.queryParams, this.dateRange);
+      const queryParams = this.addDateRange(
+        this.apiListReqData.queryParams,
+        this.dateRange
+      );
       const sortParams = this.sortParams;
       const data = { pageParams, queryParams, sortParams };
-      this.api("live/experlevel:list", data).then(response => {
-        this.typeList = response.rows;
-        this.total = response.total;
+      this.api(`${this.api_path}:list`, data).then(apiListResData => {
+        this.apiListResData = apiListResData;
       });
     },
     // 取消按钮
@@ -218,12 +225,12 @@ export default {
     /** 重置按钮操作 */
     resetQuery() {
       // 排序参数
-      // this.$refs['table1'].clearSort();
+      this.$refs['table1'].clearSort();
       if (typeof this.sortParams !== "object") {
         this.sortParams = {};
       }
-      this.sortParams.prop = "levelid";
-      this.sortParams.order = "ascending";
+      this.sortParams.prop = "";
+      this.sortParams.order = "";
       this.dateRange = [];
       this.resetForm("queryForm");
       this.handleQuery();
@@ -241,45 +248,48 @@ export default {
       this.single = selection.length !== 1;
       this.multiple = !selection.length;
     },
-    /** 修改按钮操作 */
-    handleUpdate(row) {
-      this.reset();
+    /** 表格按钮操作 */
+    handleTableOperate(name, row) {
+      const that = this;
       const levelid = row.levelid;
-      this.api("live/experlevel:get", { levelid }).then(response => {
-        this.form = response.data;
-        this.open = true;
-        this.title = "修改等级信息";
-        this.method = "update";
-      });
+      switch (name) {
+        case "edit":
+          this.reset();
+          this.api(`${that.api_path}:get`, { levelid }).then(response => {
+            this.form = response.data;
+            this.open = true;
+            this.title = "修改等级信息";
+            this.method = "update";
+          });
+          break;
+        case "delete":
+          this.$confirm(`是否确认删除等级为[${levelid}]的数据项?`, "警告", {
+            confirmButtonText: "确定",
+            cancelButtonText: "取消",
+            type: "warning"
+          })
+            .then(function() {
+              return that.api(`${that.api_path}:delete`, { levelid });
+            })
+            .then(() => {
+              that.getList();
+            });
+          break;
+      }
     },
     /** 提交按钮 */
     submitForm: function() {
+      const that = this;
       this.$refs["form"].validate(valid => {
         if (valid) {
           const reqData = {};
           reqData.form = this.form;
-          this.api(`live/experlevel:${this.method}`, reqData).then(response => {
+          this.api(`${that.api_path}:${this.method}`, reqData).then(response => {
             this.open = false;
             this.getList();
           });
         }
       });
-    },
-    /** 删除按钮操作 */
-    handleDelete(row) {
-      const that = this;
-      const levelid = row.levelid;
-      this.$confirm(`是否确认删除等级为[${levelid}]的数据项?`, "警告", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      })
-        .then(function() {
-          return that.api("live/experlevel:delete", { levelid });
-        })
-        .then(() => {
-          that.getList();
-        });
     },
     sortChange(data) {
       this.sortParams.order = data.order;
