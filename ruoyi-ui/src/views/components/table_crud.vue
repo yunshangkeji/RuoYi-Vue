@@ -8,13 +8,13 @@
       @submit.native.prevent="handleQuery"
     >
       <el-form-item
-        v-for="(item,parsm_name) in apiListResData.query"
-        :key="parsm_name"
+        v-for="(item,paramName) in apiListResData.query"
+        :key="paramName"
         :label="item.title"
-        prop="levelid"
+        :prop="paramName"
       >
         <el-input
-          v-model="apiListReqData.queryParams[parsm_name]"
+          v-model="apiListReqData.queryParams[paramName]"
           :placeholder="'请输入'+item.title"
           clearable
           size="small"
@@ -95,41 +95,28 @@
       width="500px"
       append-to-body
     >
-      <el-form ref="elDialog_form" :model="elDialog.form" label-width="80px">
-        <el-form-item label="等级" prop="levelid">
-          <el-input v-model="elDialog.form.levelid" />
-        </el-form-item>
-        <el-form-item label="经验上限" prop="level_up">
-          <el-input v-model="elDialog.form.level_up" />
-        </el-form-item>
-        <el-form-item label="昵称颜色" prop="colour">
-          <el-color-picker v-model="elDialog.form.colour"></el-color-picker>
-        </el-form-item>
-        <el-form-item label="等级图标" prop="thumb">
-          <img height="25" :src="elDialog.form.thumb" />
-          <el-upload
-            :action="elUpload.action"
-            :data="elUpload.data"
-            :before-upload="elUpload_onbefore"
-            :on-success="elUpload_onsuccess_1"
-            :file-list="elUpload.fileList"
-            :limit="1"
-          >
-            <el-button type="primary">点击上传等级图标</el-button>
-          </el-upload>
-        </el-form-item>
-        <el-form-item label="等级背景" prop="bg">
-          <img height="25" :src="elDialog.form.bg" />
-          <el-upload
-            :action="elUpload.action"
-            :data="elUpload.data"
-            :before-upload="elUpload_onbefore"
-            :on-success="elUpload_onsuccess_2"
-            :file-list="elUpload.fileList"
-            :limit="1"
-          >
-            <el-button type="primary">点击上传等级背景</el-button>
-          </el-upload>
+      <el-form ref="elDialog_form" :model="elDialog.formValue" label-width="80px">
+        <el-form-item
+          v-for="(formItem,itemName) in apiListResData.formItem"
+          :key="itemName"
+          :label="formItem.label"
+          :prop="itemName"
+        >
+          <el-color-picker v-if="formItem.type==='color'" v-model="elDialog.formValue[itemName]"></el-color-picker>
+          <span v-if="formItem.type==='upload'">
+            <img height="25" :src="elDialog.formValue[itemName]" />
+            <el-upload
+              :action="elUpload.action"
+              :data="elUpload.data"
+              :before-upload="elUpload_onbefore"
+              :on-success="elUpload_onsuccess"
+              :file-list="elUpload.fileList"
+              :limit="1"
+            >
+              <el-button type="primary">点击上传{{formItem.label}}</el-button>
+            </el-upload>
+          </span>
+          <el-input v-else v-model="elDialog.formValue[itemName]" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -162,7 +149,7 @@ export default {
         visible: false,
         method: "",
         // 表单参数
-        form: {},
+        formValue: { levelid: "" },
         // 表单校验
         rules: {
           title: [
@@ -218,7 +205,7 @@ export default {
     },
     // 表单重置
     elDialog_reset() {
-      this.elDialog.form = {
+      this.elDialog.formValue = {
         thumb: "",
         bg: ""
       };
@@ -257,25 +244,25 @@ export default {
     /** 表格按钮操作 */
     handleTableOperate(name, row) {
       const that = this;
-      const levelid = row.levelid;
+      const oper_id = row.levelid;
       switch (name) {
         case "edit":
           this.elDialog_reset();
-          this.api(`${that.api_path}:get`, { levelid }).then(response => {
-            this.elDialog.form = response.data;
+          this.api(`${that.api_path}:get`, { oper_id }).then(apiFormResData => {
+            this.elDialog.formValue = apiFormResData.formValue;
             this.elDialog.visible = true;
             this.elDialog.title = "修改等级信息";
             this.elDialog.method = "update";
           });
           break;
         case "delete":
-          this.$confirm(`是否确认删除等级为[${levelid}]的数据项?`, "警告", {
+          this.$confirm(`是否确认删除等级为[${oper_id}]的数据项?`, "警告", {
             confirmButtonText: "确定",
             cancelButtonText: "取消",
             type: "warning"
           })
             .then(function() {
-              return that.api(`${that.api_path}:delete`, { levelid });
+              return that.api(`${that.api_path}:delete`, { oper_id });
             })
             .then(() => {
               that.getList();
@@ -289,7 +276,7 @@ export default {
       this.$refs["elDialog_form"].validate(valid => {
         if (valid) {
           const reqData = {};
-          reqData.form = that.elDialog.form;
+          reqData.formValue = that.elDialog.formValue;
           this.api(`${that.api_path}:${that.elDialog.method}`, reqData).then(
             response => {
               this.elDialog.visible = false;
@@ -318,16 +305,10 @@ export default {
         });
       });
     },
-    elUpload_onsuccess_1(data) {
-      console.log("elUpload_onsuccess_1", data);
+    elUpload_onsuccess(data) {
+      console.log("elUpload_onsuccess", data);
       this.msgSuccess(data.msg);
-      this.elDialog.form.thumb = data.imageUrl;
-      this.elUpload.fileList = [];
-    },
-    elUpload_onsuccess_2(data) {
-      console.log("elUpload_onsuccess_2", data);
-      this.msgSuccess(data.msg);
-      this.elDialog.form.bg = data.imageUrl;
+      this.elDialog.form[data.field] = data.imageUrl;
       this.elUpload.fileList = [];
     }
   }
