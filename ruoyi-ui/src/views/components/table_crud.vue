@@ -56,7 +56,7 @@
         <template slot-scope="scope">
           <div
             v-if="column_info.type==='color'"
-            :style="{'width':60+'px','height':25+'px','background-color': '#'+scope.row[column_info.prop]}"
+            :style="{'width':'100%','height':25+'px','background-color': '#'+scope.row[column_info.prop]}"
           ></div>
           <img
             v-else-if="column_info.type==='img'"
