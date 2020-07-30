@@ -104,12 +104,17 @@
         >
           <el-color-picker v-if="formItem.type==='color'" v-model="elDialog.formValue[itemName]"></el-color-picker>
           <span v-if="formItem.type==='upload'">
-            <img height="25" :src="elDialog.formValue[itemName]" />
+            <img
+              v-if="elDialog.formValue[itemName]"
+              height="25"
+              :src="elDialog.formValue[itemName]"
+            />
             <el-upload
+              :ref="itemName"
               :action="elUpload.action"
               :data="elUpload.data"
               :before-upload="elUpload_onbefore"
-              :on-success="elUpload_onsuccess"
+              :on-success="(res,file)=>{return elUpload_onsuccess(res,file,itemName)}"
               :file-list="elUpload.fileList"
               :limit="1"
             >
@@ -296,8 +301,8 @@ export default {
       const that = this;
       return new Promise((resolve, reject) => {
         const reqData = {};
-        reqData.file = {};
-        reqData.file.name = file.name;
+        reqData.uploadFile = {};
+        reqData.uploadFile.name = file.name;
         this.api(`${that.api_path}:upload`, reqData).then(data => {
           this.elUpload.action = data.upload_form.url;
           this.elUpload.data = data.upload_form.formdata;
@@ -305,10 +310,10 @@ export default {
         });
       });
     },
-    elUpload_onsuccess(data) {
-      console.log("elUpload_onsuccess", data);
-      this.msgSuccess(data.msg);
-      this.elDialog.form[data.field] = data.imageUrl;
+    elUpload_onsuccess(res, data, field) {
+      console.log("elUpload_onsuccess", res, data, field);
+      this.msgSuccess(res.msg);
+      this.elDialog.formValue[field] = res.imageUrl;
       this.elUpload.fileList = [];
     }
   }
