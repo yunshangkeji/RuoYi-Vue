@@ -8,7 +8,7 @@
       @submit.native.prevent="handleQuery"
     >
       <el-form-item
-        v-for="(item,index) in column_query"
+        v-for="(item,index) in column_where"
         :key="index"
         :label="item.label"
         :prop="item.prop"
@@ -102,15 +102,20 @@
           :label="formItem.label"
           :prop="formItem.prop"
         >
+          <el-input v-if="formItem.form==='input'" v-model="elDialog.formValue[formItem.prop]" />
           <el-color-picker
-            v-if="formItem.input==='color'"
+            v-if="formItem.form==='color'"
             v-model="elDialog.formValue[formItem.prop]"
           ></el-color-picker>
-          <span v-if="formItem.input==='upload'">
+          <span v-if="formItem.form==='upload'">
             <img
-              v-if="elDialog.formValue[formItem.prop]"
+              v-if="formItem.type==='img'&&elDialog.formValue[formItem.prop]"
               height="25"
               :src="elDialog.formValue[formItem.prop]"
+            />
+            <el-input
+              v-if="formItem.type==='text'&&elDialog.formValue[formItem.prop]"
+              v-model="elDialog.formValue[formItem.prop]"
             />
             <el-upload
               :ref="itemName"
@@ -124,7 +129,6 @@
               <el-button type="primary">点击上传{{formItem.label}}</el-button>
             </el-upload>
           </span>
-          <el-input v-else v-model="elDialog.formValue[formItem.prop]" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -192,14 +196,14 @@ export default {
         return row.width;
       });
     },
-    column_query() {
+    column_where() {
       return this.filter(this.apiListResData.column, row => {
-        return row.query;
+        return row.where;
       });
     },
     column_form() {
       return this.filter(this.apiListResData.column, row => {
-        return row.input;
+        return row.form;
       });
     },
     loading() {
@@ -345,7 +349,7 @@ export default {
     elUpload_onsuccess(res, data, field) {
       console.log("elUpload_onsuccess", res, data, field);
       this.msgSuccess(res.msg);
-      this.elDialog.formValue[field] = res.imageUrl;
+      this.elDialog.formValue[field] = res.fileUrl;
       this.elUpload.fileList = [];
     }
   }
