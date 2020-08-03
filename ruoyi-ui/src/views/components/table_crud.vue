@@ -8,14 +8,14 @@
       @submit.native.prevent="handleQuery"
     >
       <el-form-item
-        v-for="(item,paramName) in apiListResData.query"
-        :key="paramName"
-        :label="item.title"
-        :prop="paramName"
+        v-for="(item,index) in column_query"
+        :key="index"
+        :label="item.label"
+        :prop="item.prop"
       >
         <el-input
-          v-model="apiListReqData.queryParams[paramName]"
-          :placeholder="'请输入'+item.title"
+          v-model="apiListReqData.queryParams[item.prop]"
+          :placeholder="'请输入'+item.label"
           clearable
           size="small"
           style="width: 240px"
@@ -44,7 +44,7 @@
     >
       <el-table-column type="selection" min-width="55" align="center" />
       <el-table-column
-        v-for="(column_info,column_name) in apiListResData.column"
+        v-for="(column_info,column_name) in column_list"
         :key="column_name"
         :label="column_info.label"
         :min-width="column_info.width"
@@ -97,17 +97,20 @@
     >
       <el-form ref="elDialog_form" :model="elDialog.formValue" label-width="80px">
         <el-form-item
-          v-for="(formItem,itemName) in apiListResData.formItem"
+          v-for="(formItem,itemName) in column_form"
           :key="itemName"
           :label="formItem.label"
-          :prop="itemName"
+          :prop="formItem.prop"
         >
-          <el-color-picker v-if="formItem.type==='color'" v-model="elDialog.formValue[itemName]"></el-color-picker>
-          <span v-if="formItem.type==='upload'">
+          <el-color-picker
+            v-if="formItem.input==='color'"
+            v-model="elDialog.formValue[formItem.prop]"
+          ></el-color-picker>
+          <span v-if="formItem.input==='upload'">
             <img
-              v-if="elDialog.formValue[itemName]"
+              v-if="elDialog.formValue[formItem.prop]"
               height="25"
-              :src="elDialog.formValue[itemName]"
+              :src="elDialog.formValue[formItem.prop]"
             />
             <el-upload
               :ref="itemName"
@@ -121,7 +124,7 @@
               <el-button type="primary">点击上传{{formItem.label}}</el-button>
             </el-upload>
           </span>
-          <el-input v-else v-model="elDialog.formValue[itemName]" />
+          <el-input v-else v-model="elDialog.formValue[formItem.prop]" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -184,6 +187,21 @@ export default {
     };
   },
   computed: {
+    column_list() {
+      return this.filter(this.apiListResData.column, row => {
+        return row.width;
+      });
+    },
+    column_query() {
+      return this.filter(this.apiListResData.column, row => {
+        return row.query;
+      });
+    },
+    column_form() {
+      return this.filter(this.apiListResData.column, row => {
+        return row.input;
+      });
+    },
     loading() {
       // 如处于加载中，应显示遮罩层
       return this.$store.getters.apiLoading;
@@ -195,6 +213,15 @@ export default {
     this.getList();
   },
   methods: {
+    filter(inputMap, fun) {
+      const retMap = {};
+      for (var key in inputMap) {
+        const val = inputMap[key];
+        if (!fun(val)) continue;
+        retMap[key] = val;
+      }
+      return retMap;
+    },
     /** 查询列表 */
     getList() {
       this.api(`${this.api_path}:list`, this.apiListReqData).then(
@@ -249,7 +276,7 @@ export default {
     /** 表格按钮操作 */
     handleTableOperate(name, row) {
       const that = this;
-      const oper_id = row.levelid;
+      const oper_id = row[this.apiListResData.id];
       switch (name) {
         case "edit":
           this.elDialog_reset();
