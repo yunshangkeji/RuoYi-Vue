@@ -60,7 +60,7 @@
           ></div>
           <img
             v-else-if="column_info.type==='img'"
-            height="25"
+            :height="column_info.img_height"
             style="vertical-align: middle;"
             :src="scope.row[column_info.prop]"
           />
@@ -110,7 +110,7 @@
           <span v-if="formItem.form==='upload'">
             <img
               v-if="formItem.type==='img'&&elDialog.formValue[formItem.prop]"
-              height="25"
+              :height="formItem.img_height"
               :src="elDialog.formValue[formItem.prop]"
             />
             <el-input
@@ -118,11 +118,10 @@
               v-model="elDialog.formValue[formItem.prop]"
             />
             <el-upload
-              :ref="itemName"
               :action="elUpload.action"
               :data="elUpload.data"
               :before-upload="elUpload_onbefore"
-              :on-success="(res,file)=>{return elUpload_onsuccess(res,file,itemName)}"
+              :on-success="(res,file)=>{return elUpload_onsuccess(res,file,formItem.prop)}"
               :file-list="elUpload.fileList"
               :limit="1"
             >
@@ -346,10 +345,10 @@ export default {
         });
       });
     },
-    elUpload_onsuccess(res, data, field) {
-      console.log("elUpload_onsuccess", res, data, field);
+    elUpload_onsuccess(res, data, prop) {
+      console.log("elUpload_onsuccess", res, data, prop);
       this.msgSuccess(res.msg);
-      this.elDialog.formValue[field] = res.fileUrl;
+      this.elDialog.formValue[prop] = res.fileUrl;
       this.elUpload.fileList = [];
     }
   }
