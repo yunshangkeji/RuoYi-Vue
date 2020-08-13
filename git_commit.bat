@@ -1,8 +1,10 @@
 @ECHO OFF
-git config --global user.email "dev@yskj.local"
-git config --global user.name "yskj"
-git config --global core.safecrlf warn
-git config --global core.autocrlf true
+set path=%path%;D:\Users\asheng\Programs\PortableGit\bin
+git config pull.rebase true
+git config user.email "dev@yskj.local"
+git config user.name "yskj"
+git config core.safecrlf warn
+git config core.autocrlf true
 git remote rm origin
 git remote add origin https://gitee.com/yunshangkeji1/RuoYi-Vue
 ECHO =========git diff============
