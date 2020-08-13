@@ -212,7 +212,11 @@ export default {
   },
   created() {
     const route_path = this.$route.path.split("/");
-    this.api_path = `${route_path[1]}/${route_path[2]}_${route_path[3]}`;
+    if (route_path.length >= 4) {
+      this.api_path = `${route_path[1]}/${route_path[2]}_${route_path[3]}`;
+    } else {
+      this.api_path = `${route_path[1]}/${route_path[2]}`;
+    }
     this.getList();
   },
   methods: {
