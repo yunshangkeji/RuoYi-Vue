@@ -1,8 +1,8 @@
 @ECHO OFF
 set path=%path%;D:\Users\asheng\Programs\PortableGit\bin
 git config core.editor notepad.exe
+git config --system --unset credential.helper
 git config credential.helper "store --file .git-credentials"
-git config credential.helper selector.selected=store
 git config pull.rebase true
 git config user.email "dev@yskj.local"
 git config user.name "yskj"
