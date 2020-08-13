@@ -1,10 +1,10 @@
 <template>
   <div class="dashboard-editor-container">
-    <panel-group :chart-data="apiResData.cards_user" />
+    <panel-group v-if="apiResData&&apiResData.cards_user" :chart-data="apiResData.cards_user" />
     <el-row style="background:#fff;padding:16px 16px 0;margin-bottom:32px;">
       <line-chart :chart-data="lineChartData" />
     </el-row>
-    <panel-group :chart-data="apiResData.cards_zhubo" />
+    <panel-group v-if="apiResData&&apiResData.cards_zhubo" :chart-data="apiResData.cards_zhubo" />
     <el-row :gutter="32">
       <el-col :xs="24" :sm="24" :lg="12">
         <div class="chart-wrapper">
@@ -29,8 +29,8 @@ import AreaChart from "./dashboard/AreaChart";
 const lineChartData = {
   newVisitis: {
     expectedData: [100, 120, 161, 134, 105, 160, 165],
-    actualData: [120, 82, 91, 154, 162, 140, 145]
-  }
+    actualData: [120, 82, 91, 154, 162, 140, 145],
+  },
 };
 
 export default {
@@ -39,23 +39,23 @@ export default {
     PanelGroup,
     LineChart,
     PieChart,
-    AreaChart
+    AreaChart,
   },
   data() {
     return {
       apiResData: {
         cards_user: [],
-        cards_zhubo: []
+        cards_zhubo: [],
       },
-      lineChartData: lineChartData.newVisitis
+      lineChartData: lineChartData.newVisitis,
     };
   },
   created() {
-    this.api("live/index").then(apiResData => {
+    this.api("/index").then((apiResData) => {
       this.apiResData = apiResData;
     });
   },
-  methods: {}
+  methods: {},
 };
 </script>
 
