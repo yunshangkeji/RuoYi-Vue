@@ -16,11 +16,9 @@ ECHO =========git pull ^&^& git commit============
 PAUSE
 git pull origin master
 git commit
-ECHO =========git add *============
+ECHO =========git add * ^&^& git commit============
 PAUSE
 git add --all
-ECHO =========git commit============
-PAUSE
 git commit
 ECHO =========git push origin master============
 PAUSE

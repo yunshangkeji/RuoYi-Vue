@@ -7,10 +7,11 @@ import errorCode from "@/utils/errorCode";
 
 // axios.defaults.headers["Content-Type"] = "application/json;charset=utf-8"
 axios.defaults.headers["Content-Type"] = "application/x-www-form-urlencoded";
+var baseURL = "https://api.feieryun.cn/"
 // 创建axios实例
 const service = axios.create({
   // axios中请求配置有baseURL选项，表示请求URL公共部分
-  baseURL: process.env.VUE_APP_BASE_API,
+  baseURL,
   // 超时
   timeout: 10000
 });
@@ -30,10 +31,12 @@ service.interceptors.request.use(config => {
 
 // 响应拦截器
 service.interceptors.response.use(res => {
+  const resData = res.data;
   // 未设置状态码则默认成功状态
-  const code = res.data.code || "";
+  const code = resData.code || "";
   // 获取错误信息
-  const message = errorCode[code] || res.data.msg || errorCode["default"];
+  const message = resData.msg || resData.message || errorCode["default"];
+  const isOK = resData.errno === 0 || resData.ret && (code === "" || code === "1000");
   if (code === "401") {
     MessageBox.confirm(
       "登录状态已过期，您可以继续留在该页面，或者重新登录",
@@ -48,7 +51,7 @@ service.interceptors.response.use(res => {
         location.reload(); // 为了重新实例化vue-router对象 避免bug
       });
     });
-    return;
+    return Promise.reject(new Error(message));
   }
   if (code === "500") {
     Message({
@@ -57,20 +60,20 @@ service.interceptors.response.use(res => {
     });
     return Promise.reject(new Error(message));
   }
-  if (code !== "") {
+  if (!isOK) {
     Notification.error({
       title: message
     });
-    return Promise.reject("error");
+    return Promise.reject(new Error(message));
   }
-  if (typeof (res.data.setting) === "object") {
-    setting_set(res.data.setting);
+  if (typeof (resData.setting) === "object") {
+    setting_set(resData.setting);
   }
-  console.log("axios.res.data.data", res.data.data);
-  if (typeof (res.data.msg) === "string" && res.data.msg.length > 0) {
-    Notification.success({ title: res.data.msg });
+  console.log("axios.res.data.data", resData.data);
+  if (typeof (resData.msg) === "string" && resData.msg.length > 0) {
+    Notification.success({ title: resData.msg });
   }
-  return res.data.data;
+  return resData.data;
 }, error => {
   console.error("axios.response", error);
   Message({
