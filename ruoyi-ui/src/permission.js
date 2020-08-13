@@ -1,6 +1,6 @@
 import router from './router'
 import store from './store'
-import { Message } from 'element-ui'
+// import { Message } from 'element-ui'
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 import { getToken } from '@/utils/auth'
@@ -46,9 +46,9 @@ router.beforeEach((to, from, next) => {
     store.dispatch('GenerateRoutes', data)
     router.addRoutes(data.accessedRoutes) // 动态添加可访问路由表
     next({ ...to, replace: true }) // hack方法 确保addRoutes已完成
-  }).catch(err => {
+  }).catch(() => {
     store.dispatch('FedLogOut').then(() => {
-      Message.error(err)
+      // Message.error(err)
       next({ path: '/' })
     })
   })

@@ -2,6 +2,9 @@ const getters = {
   apiLoading: (state) => {
     return (state.api.iLoading > 0)
   },
+  apiLogined: (state) => {
+    return state.user.token !== null
+  },
   sidebar: state => state.app.sidebar,
   size: state => state.app.size,
   device: state => state.app.device,
