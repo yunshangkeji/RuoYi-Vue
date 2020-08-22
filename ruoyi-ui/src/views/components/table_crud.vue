@@ -102,7 +102,15 @@
           :label="formItem.label"
           :prop="formItem.prop"
         >
-          <el-input v-if="formItem.form==='input'" v-model="elDialog.formValue[formItem.prop]" />
+          <span v-if="formItem.form==='input'">
+            <el-input v-if="formItem.type==='text'" v-model="elDialog.formValue[formItem.prop]" />
+            <el-radio-group
+              v-if="formItem.type==='radio'"
+              v-model="elDialog.formValue[formItem.prop]"
+            >
+              <el-radio v-for="(value,name) in formItem.option" :key="name" :label="name">{{value}}</el-radio>
+            </el-radio-group>
+          </span>
           <el-color-picker
             v-if="formItem.form==='color'"
             v-model="elDialog.formValue[formItem.prop]"
@@ -145,7 +153,7 @@ export default {
       elUpload: {
         action: "",
         data: {},
-        fileList: []
+        fileList: [],
       },
       // 选中数组
       ids: [],
@@ -164,9 +172,9 @@ export default {
         // 表单校验
         rules: {
           title: [
-            { required: true, message: "成员名称不能为空", trigger: "blur" }
-          ]
-        }
+            { required: true, message: "成员名称不能为空", trigger: "blur" },
+          ],
+        },
       },
       apiListReqData: {
         // 查询参数
@@ -176,39 +184,39 @@ export default {
         // 分页参数
         pageParams: {
           pageNum: 1,
-          pageSize: 15
-        }
+          pageSize: 15,
+        },
       },
       apiListResData: {
         // 总条数
         total: 0,
         // 表格数据
         rows: [],
-        query: []
+        query: [],
       },
-      api_path: ""
+      api_path: "",
     };
   },
   computed: {
     column_list() {
-      return this.filter(this.apiListResData.column, row => {
+      return this.filter(this.apiListResData.column, (row) => {
         return row.width;
       });
     },
     column_where() {
-      return this.filter(this.apiListResData.column, row => {
+      return this.filter(this.apiListResData.column, (row) => {
         return row.where;
       });
     },
     column_form() {
-      return this.filter(this.apiListResData.column, row => {
+      return this.filter(this.apiListResData.column, (row) => {
         return row.form;
       });
     },
     loading() {
       // 如处于加载中，应显示遮罩层
       return this.$store.getters.apiLoading;
-    }
+    },
   },
   created() {
     const route_path = this.$route.path.split("/");
@@ -232,7 +240,7 @@ export default {
     /** 查询列表 */
     getList() {
       this.api(`${this.api_path}:list`, this.apiListReqData).then(
-        apiListResData => {
+        (apiListResData) => {
           this.apiListResData = apiListResData;
         }
       );
@@ -246,7 +254,7 @@ export default {
     elDialog_reset() {
       this.elDialog.formValue = {
         thumb: "",
-        bg: ""
+        bg: "",
       };
       this.resetForm("elDialog_form");
     },
@@ -276,7 +284,7 @@ export default {
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.dictId);
+      this.ids = selection.map((item) => item.dictId);
       this.single = selection.length !== 1;
       this.multiple = !selection.length;
     },
@@ -287,12 +295,14 @@ export default {
       switch (name) {
         case "edit":
           this.elDialog_reset();
-          this.api(`${that.api_path}:get`, { oper_id }).then(apiFormResData => {
-            this.elDialog.formValue = apiFormResData.formValue;
-            this.elDialog.visible = true;
-            this.elDialog.title = `修改${this.apiListResData.title}信息[${oper_id}]`;
-            this.elDialog.method = "update";
-          });
+          this.api(`${that.api_path}:get`, { oper_id }).then(
+            (apiFormResData) => {
+              this.elDialog.formValue = apiFormResData.formValue;
+              this.elDialog.visible = true;
+              this.elDialog.title = `修改${this.apiListResData.title}信息[${oper_id}]`;
+              this.elDialog.method = "update";
+            }
+          );
           break;
         case "delete":
           this.$confirm(
@@ -301,10 +311,10 @@ export default {
             {
               confirmButtonText: "确定",
               cancelButtonText: "取消",
-              type: "warning"
+              type: "warning",
             }
           )
-            .then(function() {
+            .then(function () {
               return that.api(`${that.api_path}:delete`, { oper_id });
             })
             .then(() => {
@@ -314,16 +324,16 @@ export default {
       }
     },
     /** 提交按钮 */
-    submitForm: function() {
+    submitForm: function () {
       const that = this;
-      this.$refs["elDialog_form"].validate(valid => {
+      this.$refs["elDialog_form"].validate((valid) => {
         if (!valid) {
           return;
         }
         const reqData = {};
         reqData.formValue = that.elDialog.formValue;
         this.api(`${that.api_path}:${that.elDialog.method}`, reqData).then(
-          response => {
+          (response) => {
             this.elDialog.visible = false;
             this.getList();
           }
@@ -342,7 +352,7 @@ export default {
         const reqData = {};
         reqData.uploadFile = {};
         reqData.uploadFile.name = file.name;
-        this.api(`${that.api_path}:upload`, reqData).then(data => {
+        this.api(`${that.api_path}:upload`, reqData).then((data) => {
           this.elUpload.action = data.upload_form.url;
           this.elUpload.data = data.upload_form.formdata;
           resolve(file);
@@ -354,7 +364,7 @@ export default {
       this.msgSuccess(res.msg);
       this.elDialog.formValue[prop] = res.fileUrl;
       this.elUpload.fileList = [];
-    }
-  }
+    },
+  },
 };
 </script>
