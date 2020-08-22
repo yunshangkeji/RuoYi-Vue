@@ -8,6 +8,11 @@ import errorCode from "@/utils/errorCode";
 // axios.defaults.headers["Content-Type"] = "application/json;charset=utf-8"
 axios.defaults.headers["Content-Type"] = "application/x-www-form-urlencoded";
 var baseURL = "https://api.feieryun.cn/"
+switch (location.hostname) {
+  case ("35.236.189.38"):
+    baseURL = "http://47.106.169.142:802";
+    break;
+}
 // 创建axios实例
 const service = axios.create({
   // axios中请求配置有baseURL选项，表示请求URL公共部分
@@ -36,7 +41,7 @@ service.interceptors.response.use(res => {
   const code = resData.code || "";
   // 获取错误信息
   const message = resData.msg || resData.message || errorCode["default"];
-  const isOK = resData.errno === 0 || resData.ret && (code === "" || code === "1000");
+  const isOK = resData.errno === 0 || resData.ret === 0;
   if (code === "401") {
     MessageBox.confirm(
       "登录状态已过期，您可以继续留在该页面，或者重新登录",
