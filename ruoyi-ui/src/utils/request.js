@@ -7,8 +7,12 @@ import errorCode from "@/utils/errorCode";
 
 // axios.defaults.headers["Content-Type"] = "application/json;charset=utf-8"
 axios.defaults.headers["Content-Type"] = "application/x-www-form-urlencoded";
-var baseURL = "https://api.feieryun.cn/"
+var baseURL = "";
 switch (location.hostname) {
+  case ("127.0.0.1"):
+    baseURL = "https://api.feieryun.cn/";
+    break;
+  case ("127.0.0.2"):
   case ("35.236.189.38"):
     baseURL = "http://47.106.169.142:802";
     break;

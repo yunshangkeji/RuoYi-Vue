@@ -74,6 +74,9 @@
               @click="handleTableOperate(button_name,scope.row)"
             >{{button_info.title}}</el-button>
           </span>
+          <span
+            v-else-if="column_info.type==='radio'"
+          >{{column_info.option[scope.row[column_info.prop]]}}</span>
           <span v-else>{{scope.row[column_info.prop]}}</span>
         </template>
       </el-table-column>

@@ -1,9 +1,9 @@
 <template>
   <div v-loading="loading" class="app-container">
     <el-form ref="queryForm" :model="apiListReqData.queryParams" :inline="true" label-width="68px">
-      <el-form-item label="家族编号" prop="id">
+      <el-form-item label="家族编号" prop="family_id">
         <el-input
-          v-model="apiListReqData.queryParams.id"
+          v-model="apiListReqData.queryParams.family_id"
           placeholder="请输入家族编号"
           clearable
           size="small"
@@ -52,6 +52,13 @@
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
         <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+        <el-button
+          v-hasPermi="['system:dict:add']"
+          type="primary"
+          icon="el-icon-plus"
+          size="mini"
+          @click="handleAdd"
+        >新增</el-button>
       </el-form-item>
     </el-form>
 
@@ -62,7 +69,13 @@
       @sort-change="sortChange"
     >
       <el-table-column type="selection" min-width="55" align="center" />
-      <el-table-column label="家族编号" min-width="100" align="center" prop="id" sortable="custom" />
+      <el-table-column
+        label="家族编号"
+        min-width="100"
+        align="center"
+        prop="family_id"
+        sortable="custom"
+      />
       <el-table-column
         label="家族名称"
         align="center"
@@ -117,7 +130,12 @@
           <span>{{parseTime(scope.row.head_session_actived)}}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width" min-width="110">
+      <el-table-column
+        label="操作"
+        align="center"
+        class-name="small-padding fixed-width"
+        min-width="110"
+      >
         <template slot-scope="scope">
           <el-button
             v-hasPermi="['system:dict:edit']"
@@ -152,6 +170,9 @@
         :rules="elDialog.rules"
         label-width="80px"
       >
+        <el-form-item label="家族编号" prop="family_id">
+          <el-input v-model="elDialog.form.family_id" />
+        </el-form-item>
         <el-form-item label="家族名称" prop="title">
           <el-input v-model="elDialog.form.title" />
         </el-form-item>
@@ -199,9 +220,10 @@ export default {
         // 用户表格数据
         rowsList: [],
         // 总条数
-        total: 0
+        total: 0,
       },
       elDialog: {
+        id: null,
         // 弹出层标题
         title: "",
         // 是否显示弹出层
@@ -212,9 +234,9 @@ export default {
         // 表单校验
         rules: {
           title: [
-            { required: true, message: "家族名称不能为空", trigger: "blur" }
-          ]
-        }
+            { required: true, message: "家族名称不能为空", trigger: "blur" },
+          ],
+        },
       },
       // 状态数据用户
       statusOptions: [],
@@ -226,27 +248,27 @@ export default {
         // 分页参数
         pageParams: {
           pageNum: 1,
-          pageSize: 15
-        }
-      }
+          pageSize: 15,
+        },
+      },
     };
   },
   computed: {
     loading() {
       // 如处于加载中，应显示遮罩层
       return this.$store.getters.apiLoading;
-    }
+    },
   },
   created() {
     this.getList();
-    this.getDicts("live_user_state").then(response => {
+    this.getDicts("live_user_state").then((response) => {
       this.statusOptions = response.data;
     });
   },
   methods: {
     /** 查询用户类型列表 */
     getList() {
-      this.api("live/family:list", this.apiListReqData).then(data => {
+      this.api("live/family:list", this.apiListReqData).then((data) => {
         this.apiListResData = data;
       });
     },
@@ -266,7 +288,7 @@ export default {
         dictName: undefined,
         dictType: undefined,
         status: "0",
-        remark: undefined
+        remark: undefined,
       };
       this.resetForm("elDialog_form");
     },
@@ -284,20 +306,21 @@ export default {
     handleAdd() {
       this.elDialog_reset();
       this.elDialog.open = true;
-      this.elDialog.title = "添加用户";
+      this.elDialog.title = "添加家族";
       this.elDialog.method = "create";
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.dictId);
+      this.ids = selection.map((item) => item.dictId);
       this.single = selection.length !== 1;
       this.multiple = !selection.length;
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.elDialog_reset();
-      const id = row.id;
-      this.api("live/family:get", { id }).then(response => {
+      this.elDialog.id = row.family_id;
+      const id = row.family_id;
+      this.api("live/family:get", { id }).then((response) => {
         this.elDialog.form = response.data;
         this.elDialog.open = true;
         this.elDialog.title = "修改用户信息";
@@ -305,15 +328,16 @@ export default {
       });
     },
     /** 提交按钮 */
-    elDialog_submit: function() {
-      this.$refs["elDialog_form"].validate(valid => {
+    elDialog_submit: function () {
+      this.$refs["elDialog_form"].validate((valid) => {
         if (!valid) {
           return;
         }
         const reqData = {};
         reqData.form = this.elDialog.form;
+        reqData.form.id = this.elDialog.id;
         this.api(`live/family:${this.elDialog.method}`, reqData).then(
-          resData => {
+          (resData) => {
             this.elDialog.open = false;
             this.getList();
           }
@@ -329,24 +353,24 @@ export default {
         {
           confirmButtonText: "确定",
           cancelButtonText: "取消",
-          type: "warning"
+          type: "warning",
         }
       )
-        .then(function() {
+        .then(function () {
           return this.api("live/family:delete", { dictIds });
         })
         .then(() => {
           this.getList();
           this.msgSuccess("删除成功");
         })
-        .catch(function() {});
+        .catch(function () {});
     },
     sortChange(data) {
       this.apiListReqData.sortParams.order = data.order;
       this.apiListReqData.sortParams.prop = data.prop;
       this.apiListReqData.pageParams.pageNum = 1;
       this.getList();
-    }
-  }
+    },
+  },
 };
 </script>
